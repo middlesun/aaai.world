@@ -1,0 +1,681 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌐 AI Automation & Chatbot Studio</title>
+    <style>
+        :root{
+            /* Palette — only black, white and shades of gray */
+            --black: #000000;
+            --white: #ffffff;
+
+            /* Grayscale scale (light → dark) */
+            --gray-50:  #f7f7f8;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b6b6b;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #0b0b0b;
+
+            /* Core colors (mapped to grayscale) */
+            --bg: var(--white);               /* page background */
+            --surface: var(--gray-50);        /* cards, panels, surfaces */
+            --muted: var(--gray-500);         /* secondary text / meta */
+            --text: var(--gray-900);          /* primary text */
+            --accent: var(--gray-900);        /* primary accent (use subtlety) */
+            --accent-2: var(--gray-700);      /* secondary accent / emphasis */
+            --glass: rgba(255,255,255,0.6);   /* translucent 'glass' effect */
+
+            /* Typography scale */
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui;
+            --step-0: 0.875rem; /* body small */
+            --step-1: 1rem;     /* body */
+            --step-2: 1.25rem;  /* subhead */
+            --step-3: 2.75rem;  /* hero small */
+            --step-4: 3.6rem;   /* hero large */
+
+            /* Spacing */
+            --space-xs: 8px;
+            --space-sm: 16px;
+            --space-md: 32px;
+            --space-lg: 64px;
+            --space-xl: 112px;
+
+            /* Radius & shadows */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --shadow-sm: 0 6px 18px rgba(11,11,11,0.06);
+            --shadow-lg: 0 20px 60px rgba(11,11,11,0.10);
+
+            /* Motion */
+            --ease-smooth: cubic-bezier(.2,.9,.2,1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Subtle animated background pattern */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            background-image: 
+                radial-gradient(circle at 25% 25%, var(--gray-100) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, var(--gray-50) 0%, transparent 50%);
+            animation: subtleFloat 30s ease-in-out infinite;
+        }
+
+        @keyframes subtleFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Grid overlay for tech aesthetic */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            background-image: 
+                linear-gradient(var(--gray-200) 1px, transparent 1px),
+                linear-gradient(90deg, var(--gray-200) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.3;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl) var(--space-md);
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            animation: slideUp 1s var(--ease-smooth);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: var(--step-4);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: var(--space-md);
+            animation: fadeIn 1s var(--ease-smooth) 0.3s both;
+        }
+
+        .hero-description {
+            font-size: var(--step-2);
+            color: var(--muted);
+            margin-bottom: var(--space-lg);
+            font-weight: 400;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeIn 1s var(--ease-smooth) 0.6s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .hero-cta {
+            animation: fadeIn 1s var(--ease-smooth) 0.9s both;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 16px 32px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s var(--ease-smooth);
+            font-size: var(--step-1);
+            border: 2px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--gray-800);
+            border-color: var(--gray-800);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            background: var(--surface);
+        }
+
+        /* Section styling */
+        .section {
+            padding: var(--space-xl) var(--space-md);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-alt {
+            background: var(--surface);
+            padding: var(--space-xl) 0;
+        }
+
+        .section-heading {
+            text-align: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .section-heading h2 {
+            font-size: var(--step-3);
+            font-weight: 800;
+            margin-bottom: var(--space-sm);
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: var(--step-1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Deliverables grid */
+        .deliverables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-lg);
+        }
+
+        .deliverable-card {
+            padding: var(--space-lg);
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s var(--ease-smooth);
+            border: 1px solid var(--gray-200);
+            position: relative;
+        }
+
+        .deliverable-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gray-900), var(--gray-700));
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            transform: scaleX(0);
+            transition: transform 0.3s var(--ease-smooth);
+        }
+
+        .deliverable-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .deliverable-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .deliverable-card h3 {
+            font-size: var(--step-2);
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+            color: var(--text);
+        }
+
+        .deliverable-card p {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* Why section */
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+
+        .why-item {
+            padding: var(--space-md);
+            text-align: center;
+        }
+
+        .why-item h3 {
+            font-size: var(--step-2);
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+            color: var(--text);
+        }
+
+        .why-item p {
+            color: var(--muted);
+        }
+
+        /* Process timeline */
+        .process-timeline {
+            position: relative;
+            padding: var(--space-lg) 0;
+        }
+
+        .process-step {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+            position: relative;
+        }
+
+        .process-step::before {
+            content: '';
+            position: absolute;
+            left: 31px;
+            top: 60px;
+            width: 2px;
+            height: calc(100% + var(--space-lg));
+            background: var(--gray-200);
+            z-index: -1;
+        }
+
+        .process-step:last-child::before {
+            display: none;
+        }
+
+        .step-number {
+            min-width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--step-1);
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: var(--step-2);
+            font-weight: 700;
+            margin-bottom: var(--space-xs);
+        }
+
+        .step-content p {
+            color: var(--muted);
+            margin-bottom: var(--space-sm);
+        }
+
+        .step-deliverable {
+            background: var(--surface);
+            padding: var(--space-sm);
+            border-radius: var(--radius-sm);
+            font-size: var(--step-0);
+            font-weight: 600;
+            color: var(--accent-2);
+        }
+
+        /* Pilot pack highlight */
+        .pilot-pack {
+            background: linear-gradient(135deg, var(--gray-900), var(--gray-800));
+            color: var(--white);
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            margin: var(--space-xl) 0;
+            text-align: center;
+        }
+
+        .pilot-pack h2 {
+            font-size: var(--step-3);
+            font-weight: 800;
+            margin-bottom: var(--space-md);
+        }
+
+        .pilot-pack p {
+            opacity: 0.9;
+            margin-bottom: var(--space-md);
+            font-size: var(--step-1);
+        }
+
+        .pilot-pack .btn-primary {
+            background: var(--white);
+            color: var(--gray-900);
+            border-color: var(--white);
+        }
+
+        .pilot-pack .btn-primary:hover {
+            background: var(--gray-100);
+        }
+
+        /* Outcomes grid */
+        .outcomes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+
+        .outcome-item {
+            text-align: center;
+            padding: var(--space-md);
+        }
+
+        .outcome-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-sm);
+            font-size: 24px;
+            color: var(--accent);
+        }
+
+        .outcome-item h3 {
+            font-size: var(--step-1);
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Scroll animations */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s var(--ease-smooth);
+        }
+
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            :root {
+                --step-4: 2.5rem;
+                --step-3: 2rem;
+                --space-xl: 64px;
+                --space-lg: 48px;
+            }
+            
+            .hero {
+                padding: var(--space-lg) var(--space-md);
+            }
+            
+            .deliverables-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+            }
+            
+            .process-step {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .process-step::before {
+                display: none;
+            }
+        }
+
+        /* Subtle micro-animations */
+        .card-hover {
+            transition: all 0.2s var(--ease-smooth);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>🌐 AI Automation & Chatbot Studio</h1>
+            <p class="hero-description">
+                We design and deliver plug-and-play AI services that save hours, improve customer experience, and scale without extra headcount.
+            </p>
+            <div class="hero-cta">
+                <a href="#" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our AI Services -->
+    <section class="section">
+        <div class="section-heading animate-on-scroll">
+            <h2>Our AI Services</h2>
+            <p>Plug-and-play AI solutions that deliver immediate value to your business operations.</p>
+        </div>
+        
+        <div class="deliverables-grid">
+            <div class="deliverable-card animate-on-scroll">
+                <h3>1. AI Support Concierge</h3>
+                <p><strong>Your 24/7 customer rep.</strong><br><br>
+                A chatbot trained on your FAQs, help docs, and policies that instantly answers 80–90% of customer queries, escalating only the complex ones.<br><br>
+                <strong>Deliverables:</strong> Custom chatbot (web + WhatsApp/Slack), training on knowledge base, reporting dashboard.<br>
+                <strong>Timeline:</strong> 2–3 weeks<br>
+                <strong>Pricing:</strong> $3,000 setup + $500/month hosting & updates</p>
+            </div>
+            
+            <div class="deliverable-card animate-on-scroll">
+                <h3>2. Lead Capture & Qualification Bot</h3>
+                <p><strong>Turn site visitors into warm leads.</strong><br><br>
+                Conversational lead bot that collects info, qualifies, and sends to your CRM. Engages visitors, asks smart questions, routes hot leads to sales instantly.<br><br>
+                <strong>Deliverables:</strong> Website chatbot, CRM integration (HubSpot, Pipedrive, etc.), weekly lead report.<br>
+                <strong>Timeline:</strong> 1–2 weeks<br>
+                <strong>Pricing:</strong> $2,500 setup + $400/month maintenance</p>
+            </div>
+            
+            <div class="deliverable-card animate-on-scroll">
+                <h3>3. Meeting & Call AI Assistant</h3>
+                <p><strong>Never miss a detail again.</strong><br><br>
+                AI that joins Zoom/Meet calls (or works on recordings). Summarizes meetings, extracts action items, and updates your CRM/project tool.<br><br>
+                <strong>Deliverables:</strong> Automated note-taker, action-item digest, direct tool integration.<br>
+                <strong>Timeline:</strong> 2–4 weeks<br>
+                <strong>Pricing:</strong> $4,000 setup + $600/month</p>
+            </div>
+            
+            <div class="deliverable-card animate-on-scroll">
+                <h3>4. AI Document Processor</h3>
+                <p><strong>From paperwork to structured data.</strong><br><br>
+                AI that reads invoices, forms, contracts, and extracts key fields. Eliminates manual data entry, routes to billing or CRM automatically.<br><br>
+                <strong>Deliverables:</strong> Document intake flow, structured outputs, integrations to finance tools.<br>
+                <strong>Timeline:</strong> 3–4 weeks<br>
+                <strong>Pricing:</strong> $5,000 setup + volume-based monthly</p>
+            </div>
+            
+            <div class="deliverable-card animate-on-scroll">
+                <h3>5. Sales Outreach Copilot</h3>
+                <p><strong>Personalized emails, on autopilot.</strong><br><br>
+                AI that drafts and sequences sales emails tailored to each prospect. Pulls context from LinkedIn/CRM, writes warm outreach, and nudges follow-ups.<br><br>
+                <strong>Deliverables:</strong> Custom prompt library, outreach workflow, CRM sync.<br>
+                <strong>Timeline:</strong> 2 weeks<br>
+                <strong>Pricing:</strong> $3,500 setup + $500/month</p>
+            </div>
+            
+            <div class="deliverable-card animate-on-scroll">
+                <h3>6. Team Knowledge Assistant</h3>
+                <p><strong>Your company's brain, in chat form.</strong><br><br>
+                Internal chatbot for employees to query SOPs, policies, and knowledge bases. Reduces time searching docs and asking managers repetitive questions.<br><br>
+                <strong>Deliverables:</strong> Internal chatbot (Slack/Teams), knowledge uploads, permissions.<br>
+                <strong>Timeline:</strong> 2–3 weeks<br>
+                <strong>Pricing:</strong> $4,000 setup + $600/month</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How We Build It -->
+    <div class="section-alt">
+        <section class="section">
+            <div class="section-heading animate-on-scroll">
+                <h2>👉 This is a plug-and-play agency offering</h2>
+                <p>You can deliver it with no-code tools</p>
+            </div>
+            
+            <div class="why-grid">
+                <div class="why-item animate-on-scroll">
+                    <h3>Chatbots</h3>
+                    <p>Landbot, Tidio, Botpress Cloud, ManyChat, Zapier Chatbot</p>
+                </div>
+                
+                <div class="why-item animate-on-scroll">
+                    <h3>Automations</h3>
+                    <p>Zapier, Make, Airtable, Pipedream</p>
+                </div>
+                
+                <div class="why-item animate-on-scroll">
+                    <h3>LLMs</h3>
+                    <p>ChatGPT, Claude, OpenRouter</p>
+                </div>
+                
+                <div class="why-item animate-on-scroll">
+                    <h3>Integrations</h3>
+                    <p>HubSpot, Salesforce, Pipedrive, Notion, Google Workspace</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+
+    <!-- Service Packaging -->
+    <section class="section">
+        <div class="pilot-pack animate-on-scroll">
+            <h2>📦 Service Packaging</h2>
+            <p><strong>Pilot Pack (Fixed-Price):</strong> Start with one service, fully delivered + ROI snapshot.</p>
+            <p><strong>Growth Bundle:</strong> Any 3 services together at a 15% discount.</p>
+            <p><strong>Managed AI Ops:</strong> Monthly retainer — we maintain, retrain, and improve your AI systems continuously.</p>
+            <a href="#" class="btn btn-primary">Get Your Quote</a>
+        </div>
+    </section>
+
+    <!-- Typical Results -->
+    <section class="section">
+        <div class="section-heading animate-on-scroll">
+            <h2>⚡ Typical Results Clients See</h2>
+        </div>
+        
+        <div class="outcomes-grid">
+            <div class="outcome-item animate-on-scroll">
+                <div class="outcome-icon">🎯</div>
+                <h3>40–70% fewer repetitive tickets handled by humans</h3>
+            </div>
+            
+            <div class="outcome-item animate-on-scroll">
+                <div class="outcome-icon">⚡</div>
+                <h3>3–5x faster lead response time</h3>
+            </div>
+            
+            <div class="outcome-item animate-on-scroll">
+                <div class="outcome-icon">⏰</div>
+                <h3>20+ hours saved per manager each month in reporting and notes</h3>
+            </div>
+            
+            <div class="outcome-item animate-on-scroll">
+                <div class="outcome-icon">🎯</div>
+                <h3>90% accuracy in document/data extraction</h3>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Smooth scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Subtle parallax for background
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const pattern = document.querySelector('.bg-pattern');
+            pattern.style.transform = `translateY(${scrolled * 0.1}px)`;
+        });
+
+        // Button interactions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-2px)';
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Staggered animation for grids
+        const animateGrid = (gridSelector, delay = 100) => {
+            const gridItems = document.querySelectorAll(`${gridSelector} .animate-on-scroll`);
+            gridItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * delay}ms`;
+            });
+        };
+
+        animateGrid('.deliverables-grid');
+        animateGrid('.why-grid');
+        animateGrid('.outcomes-grid');
+    </script>
+</body>
+</html>
