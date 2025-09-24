@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bulk Google Search & Email Extractor</title>
+  <style>
+    :root {
+      --primary: #0077ff;
+      --accent: #00c2ff;
+      --bg-light: #f9fafb;
+      --bg-dark: #1e1e1e;
+      --text: #1a1a1a;
+      --text-light: #ffffff;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text);
+      padding: 2rem;
+      margin: auto;
+      max-width: 840px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    h2, h3 {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      resize: vertical;
+      transition: border 0.2s, box-shadow 0.2s;
+      margin-bottom: 1rem;
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.2);
+    }
+
+    button {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+      margin-right: 1rem;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+      }
+
+      textarea {
+        background-color: #2b2b2b;
+        color: #fff;
+        border-color: #444;
+      }
+
+      button {
+        box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Bulk Google Search</h2>
+  <textarea id="input" rows="6" placeholder="One query per line..."></textarea>
+  <button onclick="searchAll()">Search All</button>
+
+  <h2>Email Extractor</h2>
+  <textarea id="emailInput" rows="6" placeholder="Paste your text dump here..."></textarea>
+  <button onclick="extractEmails()">Extract Emails</button>
+  <button onclick="copyEmails()">Copy All</button>
+  <button onclick="downloadEmails()">Download TXT</button>
+
+  <h3>All Unique Emails (<span id="totalCount">0</span>):</h3>
+  <textarea id="emailOutput" rows="6" readonly placeholder="Extracted emails will appear here..."></textarea>
+
+  <h3>Business Emails Only (<span id="businessCount">0</span>):</h3>
+  <textarea id="businessEmails" rows="6" readonly placeholder="Non-Gmail/Yahoo/Hotmail etc."></textarea>
+
+  <script>
+  function searchAll() {
+    const terms = document.getElementById('input').value.split('\n');
+    terms.forEach((t, i) => {
+      if (t.trim()) {
+        setTimeout(() => {
+          window.open('https://www.google.com/search?q=' + encodeURIComponent(t.trim()), '_blank');
+        }, i * 500);
+      }
+    });
+  }
+
+  function isFakeUsername(user) {
+    return (
+      /^x{6,}$/.test(user) ||              // xxxxxxx
+      user.length <= 3 ||                  // too short
+      ["abc", "xyz", "test"].includes(user)
+    );
+  }
+
+  function isValidEmail(email) {
+    // Basic RFC-compliant structure check
+    const structureCheck = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email);
+    if (!structureCheck) return false;
+
+    const [user, domain] = email.split('@');
+    const bannedUsernames = ["example", "test", "demo", "name", "user", "org", "admin", "contact", "info", "sales", "mail"];
+    return (
+      user.length >= 4 &&
+      /[a-z]/.test(user) &&
+      !bannedUsernames.includes(user) &&
+      !isFakeUsername(user)
+    );
+  }
+
+  function extractEmails() {
+    const text = document.getElementById('emailInput').value.toLowerCase();
+    const emailRegex = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi;
+    const matches = text.match(emailRegex) || [];
+
+    const personalDomains = [
+      "gmail.com", "yahoo.com", "hotmail.com", "outlook.com",
+      "aol.com", "icloud.com", "msn.com", "protonmail.com"
+    ];
+
+    const uniqueEmails = [...new Set(matches)].filter(isValidEmail);
+    const businessEmails = uniqueEmails.filter(email => !personalDomains.includes(email.split('@')[1]));
+
+    document.getElementById('emailOutput').value = uniqueEmails.join('\n');
+    document.getElementById('businessEmails').value = businessEmails.join('\n');
+    document.getElementById('totalCount').innerText = uniqueEmails.length;
+    document.getElementById('businessCount').innerText = businessEmails.length;
+  }
+
+  function copyEmails() {
+    const text = document.getElementById('emailOutput').value;
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Emails copied to clipboard!");
+    });
+  }
+
+  function downloadEmails() {
+    const text = document.getElementById('emailOutput').value;
+    const blob = new Blob([text], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "emails.txt";
+    link.click();
+  }
+</script>
+
+
+</body>
+</html>

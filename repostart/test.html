@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepoStart Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background-color: #d4edda; color: #155724; }
+        .fail { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>RepoStart Functionality Test</h1>
+    <div id="test-results"></div>
+
+    <script>
+        async function runTests() {
+            const results = document.getElementById('test-results');
+            
+            // Test 1: Check if repos.json exists and is valid
+            try {
+                const response = await fetch('/data/repos.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (data.repos && Array.isArray(data.repos)) {
+                    results.innerHTML += `<div class="test-result pass">✅ JSON data loaded successfully (${data.repos.length} repositories)</div>`;
+                } else {
+                    results.innerHTML += `<div class="test-result fail">❌ Invalid JSON structure</div>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<div class="test-result fail">❌ Failed to load repos.json: ${error.message}</div>`;
+            }
+
+            // Test 2: Check required HTML elements
+            const requiredElements = [
+                'search',
+                'sort-by',
+                'filter-categories',
+                'filter-languages',
+                'filter-licenses',
+                'repo-results',
+                'repo-count',
+                'showing-range',
+                'total-count'
+            ];
+
+            let missingElements = [];
+            requiredElements.forEach(id => {
+                if (!document.getElementById(id)) {
+                    missingElements.push(id);
+                }
+            });
+
+            if (missingElements.length === 0) {
+                results.innerHTML += `<div class="test-result pass">✅ All required HTML elements found</div>`;
+            } else {
+                results.innerHTML += `<div class="test-result fail">❌ Missing HTML elements: ${missingElements.join(', ')}</div>`;
+            }
+
+            // Test 3: Check localStorage functionality
+            try {
+                const testKey = 'repostart:test';
+                localStorage.setItem(testKey, 'test-value');
+                const retrieved = localStorage.getItem(testKey);
+                localStorage.removeItem(testKey);
+                
+                if (retrieved === 'test-value') {
+                    results.innerHTML += `<div class="test-result pass">✅ LocalStorage functionality working</div>`;
+                } else {
+                    results.innerHTML += `<div class="test-result fail">❌ LocalStorage not working properly</div>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<div class="test-result fail">❌ LocalStorage error: ${error.message}</div>`;
+            }
+
+            // Test 4: Check if main page loads
+            results.innerHTML += `<div class="test-result info">ℹ️ To test the full functionality, open index.html in your browser</div>`;
+            results.innerHTML += `<div class="test-result info">ℹ️ Make sure to serve the files from a web server (not file://)</div>`;
+        }
+
+        // Run tests when page loads
+        runTests();
+    </script>
+</body>
+</html>
+

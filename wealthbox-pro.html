@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthBoxAI PRO - AI-Powered Wealth Management Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #38b6ff;
+            --color-secondary: #7c38ff;
+            --color-bg: #0a0b1a;
+            --color-text: #e0e0e0;
+            --color-muted: #d1d5db;
+            --color-overlay: rgba(16, 18, 37, 0.4);
+            --gradient-main: linear-gradient(90deg, #38b6ff 0%, #7c38ff 100%);
+            --gradient-accent: linear-gradient(135deg, rgba(56, 182, 255, 0.2) 0%, rgba(124, 56, 255, 0.2) 100%);
+            --shadow-holo: 0 0 30px rgba(56, 182, 255, 0.3);
+            --shadow-glass: 0 4px 24px rgba(92, 107, 192, 0.3);
+            --blur-glass: blur(10px);
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --font-primary: 'Poppins', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            color: var(--color-text);
+            background-color: var(--color-bg);
+        }
+
+        .gradient-text {
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .glass {
+            background: var(--color-overlay);
+            backdrop-filter: var(--blur-glass);
+            -webkit-backdrop-filter: var(--blur-glass);
+            border: 1px solid rgba(92, 107, 192, 0.3);
+            border-radius: var(--radius-md);
+        }
+
+        .holographic {
+            background: var(--gradient-accent);
+            box-shadow: var(--shadow-holo);
+            border-radius: var(--radius-lg);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .hover\:translate-up:hover {
+            transform: translateY(-0.25rem);
+            transition: transform 0.3s ease;
+        }
+
+        .hover\:scale-btn:hover {
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            padding: 1rem 2rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            background: var(--gradient-main);
+            color: #fff;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-glass);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: var(--radius-md);
+            background: var(--gradient-main);
+            z-index: -1;
+        }
+
+        .card-stat {
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            background: var(--color-overlay);
+            backdrop-filter: var(--blur-glass);
+            transition: transform 0.3s ease;
+        }
+
+        .card-stat:hover {
+            transform: translateY(-0.5rem);
+        }
+
+        .card-feature {
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            position: relative;
+            overflow: hidden;
+            background: var(--color-overlay);
+            backdrop-filter: var(--blur-glass);
+            transition: transform 0.3s ease;
+        }
+
+        .card-feature:hover {
+            transform: translateY(-0.25rem);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--color-primary);
+            color: var(--color-primary);
+            animation: pulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="max-w-[1200px] mx-auto">
+        <!-- Hero Section -->
+        <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+            <div class="container mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-8">
+                        <span class="badge">NEW RELEASE</span>
+                        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                            Turn Complexity into Clarity
+                        </h1>
+                        <p class="text-xl text-gray-300">
+                            52 AI-Powered Wealth Tools
+                        </p>
+                        <p class="text-gray-400">
+                            Built for Financial Planners, Wealth Managers & HNIs who don't just manage capital — they multiply it.
+                        </p>
+                        <div class="flex flex-wrap gap-4">
+                            <a href="#cta" class="btn-primary hover:scale-btn">Start Free Trial</a>
+                            <a href="#features" class="px-6 py-3 border border-gray-600 rounded-lg hover:bg-gray-800 transition">Explore Features</a>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="glass p-4 rounded-xl">
+                            <img src="https://wordpress-1390777-5308602.cloudwaysapps.com/wp-content/uploads/2024/09/WealthBox-Demo-1.png" 
+                                 alt="WealthBoxAI PRO Dashboard" 
+                                 class="rounded-lg shadow-2xl w-full h-auto animate-float">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Value Proposition -->
+        <section class="py-20 bg-gradient-to-b from-gray-900 to-gray-950">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">WealthBoxAI Pro is your personal AI think tank</h2>
+                    <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+                        52 high-performance financial engines engineered to accelerate insights, unlock alpha, and protect client wealth at every level.
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="card-feature">
+                        <div class="text-blue-400 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Deep Planning in Seconds</h3>
+                        <p class="text-gray-400">
+                            From personalized retirement blueprints to multi-jurisdictional tax strategies — generate detailed, client-ready plans without the heavy lifting.
+                        </p>
+                    </div>
+                    <div class="card-feature">
+                        <div class="text-purple-400 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Institutional Strategy, On-Demand</h3>
+                        <p class="text-gray-400">
+                            Model macro-driven strategies, simulate Black Swan events, and optimize capital allocation like a global CIO — with just a few inputs.
+                        </p>
+                    </div>
+                    <div class="card-feature">
+                        <div class="text-green-400 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Precision Risk, Tax & Compliance</h3>
+                        <p class="text-gray-400">
+                            Monitor risk drift, optimize drawdown protection, automate due diligence, and ensure tax compliance across any region or structure.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">52 Custom AI Tools. Infinite Possibilities.</h2>
+                    <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+                        Run sophisticated simulations, build long/short equity strategies, or rotate sectors based on macro triggers — all from one interface.
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="space-y-8">
+                        <div class="card-feature">
+                            <h3 class="text-xl font-semibold mb-4">Build AI-Powered Investment Strategies</h3>
+                            <p class="text-gray-400">
+                                Leverage 30+ portfolio strategy tools to create dynamic, risk-adjusted plans aligned with macroeconomic signals, client mandates, or thematic trends.
+                            </p>
+                        </div>
+                        <div class="card-feature">
+                            <h3 class="text-xl font-semibold mb-4">Automate Compliance & Due Diligence</h3>
+                            <p class="text-gray-400">
+                                From institutional reporting to M&A analysis and jurisdictional tax risk — WealthBoxAI ensures you're covered, confidently.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="space-y-8">
+                        <div class="card-feature">
+                            <h3 class="text-xl font-semibold mb-4">Serve Every Client — From Legacy Planning to ESG</h3>
+                            <p class="text-gray-400">
+                                Handle estate planning, trust structures, private banking strategies, or ESG mandates — with tools tailored to every lifecycle phase and value set.
+                            </p>
+                        </div>
+                        <div class="card-feature">
+                            <h3 class="text-xl font-semibold mb-4">Visualize, Simulate, and Stress Test</h3>
+                            <p class="text-gray-400">
+                                Run real-time scenario models, simulate interest rate shocks, and detect portfolio risk drift — before your clients even ask.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Capabilities Section -->
+        <section id="capabilities" class="py-20 bg-gradient-to-b from-gray-950 to-gray-900">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Core Capabilities</h2>
+                    <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+                        Comprehensive tools for sophisticated financial management
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                    <div class="glass p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4 text-blue-400">Tax & Compliance</h3>
+                        <ul class="space-y-3 text-gray-400">
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Jurisdictional Tax Strategy Builder
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt=0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Capital Gains & Loss Minimization
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Regulatory Compliance Monitoring
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="glass p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4 text-purple-400">Financial Planning</h3>
+                        <ul class="space-y-3 text-gray-400">
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Client Financial Plan Generator
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Retirement Plan Builder
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Legacy & Estate Strategy Tools
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="glass p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold mb-4 text-green-400">Advanced Analysis</h3>
+                        <ul class="space-y-3 text-gray-400">
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Private Banking Advisory
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Alternative Investment Analysis
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                ESG & Impact Strategy Builder
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="glass p-8 rounded-xl max-w-4xl mx-auto">
+                    <div class="text-center">
+                        <h3 class="text-2xl font-bold mb-4">For Financial Pros Who Demand an Edge</h3>
+                        <p class="text-gray-400 mb-6">
+                            WealthBoxAI Pro isn't "just software." It's an AI-powered extension of your financial brain.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div class="flex items-start">
+                                <svg class="h-6 w-6 text-blue-400 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-300">Save hours of research, planning & reporting</span>
+                            </div>
+                            <div class="flex items-start">
+                                <svg class="h-6 w-6 text-blue-400 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-300">Deliver deeper insights at every client touchpoint</span>
+                            </div>
+                            <div class="flex items-start">
+                                <svg class="h-6 w-6 text-blue-400 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-300">Handle edge-case complexities without hesitation</span>
+                            </div>
+                            <div class="flex items-start">
+                                <svg class="h-6 w-6 text-blue-400 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-300">Operate at a higher level, without increasing headcount</span>
+                            </div>
+                        </div>
+                        <div class="text-center mt-8">
+                            <h4 class="text-xl font-bold mb-4">Trusted by Elite Advisors, Private Banks & Independent Wealth Firms</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="glass p-4 rounded-lg">
+                                    <p class="italic text-gray-300">"This is what legacy software should've become. WealthBoxAI makes me faster, sharper, and 10x more valuable to my clients."</p>
+                                    <p class="text-right text-blue-400 mt-2">– Managing Partner, UHNW Advisory Firm</p>
+                                </div>
+                                <div class="glass p-4 rounded-lg">
+                                    <p class="italic text-gray-300">"WealthBoxAI Pro makes me look like I have a team of 10 analysts behind me — but faster, cheaper, and always on."</p>
+                                    <p class="text-right text-blue-400 mt-2">– Director, Boutique Wealth Advisory</p>
+                                </div>
+                                <div class="glass p-4 rounded-lg">
+                                    <p class="italic text-gray-300">"It's like ChatGPT had a baby with BlackRock's Aladdin. It just knows what I need."</p>
+                                    <p class="text-right text-blue-400 mt-2">– Family Office CIO</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing -->
+        <section id="pricing" class="py-20 bg-gradient-to-b from-gray-900 to-gray-950">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Simple, Transparent Pricing</h2>
+                    <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+                        Choose the plan that fits your professional needs
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
+                    <div class="glass p-8 rounded-xl hover:translate-up transition-transform">
+                        <h3 class="text-xl font-bold mb-4">Free</h3>
+                        <div class="text-4xl font-bold mb-6">$0<span class="text-lg text-gray-400">/mo</span></div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">AI Report Designer</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">50+ Calculators</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">Limited Generation</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">Pro Tools Trial</span>
+                            </li>
+                        </ul>
+                        <a href="#cta" class="btn-primary w-full block text-center">Get Started</a>
+                    </div>
+                    
+                    <div class="glass p-8 rounded-xl border-2 border-blue-400 hover:translate-up transition-transform">
+                        <div class="absolute top-0 right-0 bg-blue-400 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">POPULAR</div>
+                        <h3 class="text-xl font-bold mb-4">Personal</h3>
+                        <div class="text-4xl font-bold mb-6">$49<span class="text-lg text-gray-400">/mo</span></div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">AI Report Designer</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">50+ Calculators</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">50+ AI Tools</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">Unlimited Generation</span>
+                            </li>
+                        </ul>
+                        <a href="#cta" class="btn-primary w-full block text-center">Get Started</a>
+                    </div>
+                    
+                    <div class="glass p-8 rounded-xl hover:translate-up transition-transform">
+                        <h3 class="text-xl font-bold mb-4">Team</h3>
+                        <div class="text-4xl font-bold mb-6">$199<span class="text-lg text-gray-400">/mo</span></div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">AI Report Designer</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">50+ Calculators</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">50+ AI Tools</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">Unlimited Generation</span>
+                            </li>
+                        </ul>
+                        <a href="#cta" class="btn-primary w-full block text-center">Get Started</a>
+                    </div>
+                    
+                    <div class="glass p-8 rounded-xl hover:translate-up transition-transform">
+                        <h3 class="text-xl font-bold mb-4">Team Pro</h3>
+                        <div class="text-4xl font-bold mb-6">$299<span class="text-lg text-gray-400">/mo</span></div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">AI Report Designer</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">50+ Calculators</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">50+ AI Tools</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-gray-400">Unlimited Generation</span>
+                            </li>
+                        </ul>
+                        <a href="#cta" class="btn-primary w-full block text-center">Get Started</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal HTML Previewer - Auto-Discovery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .style-card {
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .style-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .style-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        
+        .style-card:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .thumbnail {
+            position: relative;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+        
+        .thumbnail iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: scale(0.3);
+            transform-origin: top left;
+            width: 333.33%;
+            height: 333.33%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            overflow: hidden;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* Internet Explorer 10+ */
+        }
+        
+        .thumbnail iframe::-webkit-scrollbar {
+            display: none; /* WebKit */
+        }
+        
+        .thumbnail iframe.loaded {
+            opacity: 1;
+        }
+        
+        .thumbnail-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #6b7280;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .thumbnail-error {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #6b7280;
+        }
+        
+        .thumbnail::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.1);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .style-card:hover .thumbnail::after {
+            opacity: 1;
+        }
+        
+        .thumbnail-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 8px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            font-size: 0.75rem;
+        }
+        
+        .style-card:hover .thumbnail-overlay {
+            transform: translateY(0);
+        }
+        
+        .tag {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.2s;
+        }
+        
+        .tag:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .filter-btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+            border-radius: 12px;
+            padding: 2px;
+            z-index: -1;
+        }
+        
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
+        }
+        
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+        
+        .status-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .status-indicator.scanning {
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .status-indicator.success {
+            border-left: 4px solid #10b981;
+        }
+        
+        .status-indicator.error {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .file-info {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #6b7280;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .refresh-btn:hover {
+            transform: scale(1.1) rotate(180deg);
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.5);
+        }
+        
+        .no-results-illustration {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .no-results-illustration::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.5), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Status Indicator -->
+    <div id="statusIndicator" class="status-indicator">
+        <i class="fas fa-spinner fa-spin text-blue-500"></i>
+        <span id="statusText">Scanning directory...</span>
+    </div>
+    
+    <!-- Refresh Button -->
+    <div class="refresh-btn" onclick="refreshFiles()" title="Refresh Directory">
+        <i class="fas fa-sync-alt text-xl"></i>
+    </div>
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6">
+                <span class="gradient-text">Universal HTML Previewer</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-4">
+                Previews HTML files in the <strong>current directory</strong> (root level only)
+            </p>
+           <!-- <div class="max-w-2xl mx-auto mb-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <strong>File Protocol:</strong> Shows known files from this directory. Use "Add Files Manually" below to add other HTML files.
+                </div>
+            </div>-->
+            <!--<div class="text-sm text-gray-500" id="directoryInfo">
+                <i class="fas fa-folder mr-2"></i>
+                <span id="currentPath">Scanning...</span>
+            </div>-->
+            
+            <!-- Controls Bar -->
+            <div class="max-w-4xl mx-auto mb-8 mt-8">
+                <div class="flex flex-col lg:flex-row gap-4 items-center">
+                    <!-- Search Bar -->
+                    <div class="search-container flex-1 max-w-2xl">
+                        <div class="relative bg-white rounded-xl p-1">
+                            <input 
+                                type="text" 
+                                id="searchInput" 
+                                placeholder="Search HTML files..." 
+                                class="w-full px-6 py-4 text-lg border-0 rounded-lg focus:outline-none focus:ring-0"
+                            >
+                            <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors">
+                                <i class="fas fa-search text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button 
+                            id="selectFolderBtn" 
+                            class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3"
+                            title="Select a folder to browse HTML files"
+                        >
+                            <i class="fas fa-folder-open text-sm sm:text-lg"></i>
+                            <span class="text-sm sm:text-base">Browse Folder</span>
+                        </button>
+                        
+                        <button 
+                            id="addFilesBtn" 
+                            class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3"
+                            title="Add individual HTML files"
+                        >
+                            <i class="fas fa-file-plus text-sm sm:text-lg"></i>
+                            <span class="text-sm sm:text-base">Add Files</span>
+                        </button>
+                        
+                        <button 
+                            id="currentFolderBtn" 
+                            class="bg-gray-600 hover:bg-gray-700 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3"
+                            title="Show current directory files"
+                        >
+                            <i class="fas fa-home text-sm sm:text-lg"></i>
+                            <span class="text-sm sm:text-base">Current Dir</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hidden file inputs -->
+            <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none;" accept=".html,.htm">
+            <input type="file" id="filesInput" multiple style="display: none;" accept=".html,.htm">
+        </div>
+        
+        <!-- Filter Controls -->
+        <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <button class="filter-btn active px-6 py-3 rounded-full font-medium bg-white shadow-md" data-filter="all">
+                <i class="fas fa-th-large mr-2"></i>All Files
+            </button>
+            <button class="filter-btn px-6 py-3 rounded-full font-medium bg-white shadow-md" data-filter="recent">
+                <i class="fas fa-clock mr-2"></i>Recently Modified
+            </button>
+            <button class="filter-btn px-6 py-3 rounded-full font-medium bg-white shadow-md" data-filter="large">
+                <i class="fas fa-expand-arrows-alt mr-2"></i>Large Files
+            </button>
+            <button class="filter-btn px-6 py-3 rounded-full font-medium bg-white shadow-md" data-filter="small">
+                <i class="fas fa-compress-arrows-alt mr-2"></i>Small Files
+            </button>
+            <button class="filter-btn px-6 py-3 rounded-full font-medium bg-white shadow-md" data-filter="index">
+                <i class="fas fa-home mr-2"></i>Index Files
+            </button>
+        </div>
+        
+        <!-- Results Counter -->
+        <div class="text-center mb-8">
+            <p class="text-gray-600" id="resultsCounter">
+                Found <span id="resultCount">0</span> HTML files
+                <span id="sizeInfo" class="text-sm text-gray-500 block mt-1"></span>
+            </p>
+        </div>
+        
+        <!-- Files Grid -->
+        <div id="filesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <!-- Files will be loaded here -->
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="text-center py-12">
+            <div class="inline-flex items-center px-6 py-3 bg-white rounded-full shadow-lg">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mr-3"></div>
+                <span class="text-gray-600">Discovering HTML files...</span>
+            </div>
+        </div>
+        
+        <!-- No Results -->
+        <div id="noResults" class="text-center py-20 hidden">
+            <div class="max-w-md mx-auto">
+                <div class="no-results-illustration">
+                    <i class="fas fa-file-code text-6xl text-gray-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-600 mb-4">No HTML files found</h3>
+                <p class="text-gray-500 mb-6">Place some HTML files in this directory to preview them</p>
+                <div class="bg-gray-100 rounded-lg p-4 text-left max-w-sm mx-auto mb-6">
+                    <h4 class="font-semibold text-gray-700 mb-2">Supported files:</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>*.html</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>*.htm</li>
+                        <li><i class="fas fa-times text-red-500 mr-2"></i>This file (excluded)</li>
+                    </ul>
+                </div>
+                
+                <!-- Manual File Input -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto mb-6">
+                    <h4 class="font-semibold text-blue-800 mb-3">Add Files Manually</h4>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="manualFileName" placeholder="filename.html" 
+                               class="flex-1 px-3 py-2 border border-blue-300 rounded-lg text-sm">
+                        <button onclick="addManualFile()" 
+                                class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </button>
+                    </div>
+                    <p class="text-xs text-blue-600">Enter filenames you know exist in this directory</p>
+                </div>
+                
+                <div class="flex gap-4 justify-center">
+                    <button onclick="refreshFiles()" class="px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh Directory
+                    </button>
+                    <button onclick="showManualMode()" class="px-6 py-3 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-cog mr-2"></i>Manual Mode
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error Message -->
+        <div id="errorMessage" class="text-center py-20 hidden">
+            <div class="max-w-md mx-auto">
+                <div class="no-results-illustration">
+                    <i class="fas fa-exclamation-triangle text-6xl text-amber-500"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-600 mb-4">CORS Security Restriction</h3>
+                <p class="text-gray-500 mb-6">Browser security prevents local file access. This is normal when opening HTML files directly.</p>
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-left max-w-lg mx-auto mb-6">
+                    <h4 class="font-semibold text-amber-800 mb-3">🚀 Easy Solutions:</h4>
+                    <div class="space-y-3 text-sm text-amber-700">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-server text-amber-600 mt-1"></i>
+                            <div>
+                                <strong>Python:</strong> <code class="bg-amber-100 px-2 py-1 rounded">python -m http.server 8000</code>
+                                <br><span class="text-xs">Then visit: http://localhost:8000</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-node-js text-amber-600 mt-1"></i>
+                            <div>
+                                <strong>Node.js:</strong> <code class="bg-amber-100 px-2 py-1 rounded">npx live-server</code>
+                                <br><span class="text-xs">Auto-opens browser with live reload</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-code text-amber-600 mt-1"></i>
+                            <div>
+                                <strong>VS Code:</strong> Install "Live Server" extension
+                                <br><span class="text-xs">Right-click HTML file → "Open with Live Server"</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto mb-6">
+                    <h4 class="font-semibold text-blue-800 mb-2">📁 Manual Mode Available</h4>
+                    <p class="text-sm text-blue-700">You can still add files manually if you know their names</p>
+                </div>
+                <button onclick="refreshFiles()" class="mt-6 px-6 py-3 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors">
+                    <i class="fas fa-redo mr-2"></i>Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let allFiles = [];
+        let displayedItems = 0;
+        const itemsPerPage = 12;
+        const currentFileName = window.location.pathname.split('/').pop() || 'demo.html';
+
+        // Initialize the scanner
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            scanDirectory();
+        });
+
+        function setupEventListeners() {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', debounce(handleSearch, 300));
+
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', handleFilter);
+            });
+
+            // Infinite scroll
+            window.addEventListener('scroll', handleScroll);
+        }
+
+        function showStatus(message, type = 'scanning') {
+            const indicator = document.getElementById('statusIndicator');
+            const text = document.getElementById('statusText');
+            const icon = indicator.querySelector('i');
+            
+            text.textContent = message;
+            indicator.className = `status-indicator show ${type}`;
+            
+            // Update icon based on type
+            if (type === 'scanning') {
+                icon.className = 'fas fa-spinner fa-spin text-blue-500';
+            } else if (type === 'success') {
+                icon.className = 'fas fa-check-circle text-green-500';
+            } else if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle text-red-500';
+            }
+            
+            // Auto-hide success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        async function scanDirectory() {
+            showStatus('Scanning directory...', 'scanning');
+            
+            try {
+                // Get current directory path
+                const currentPath = window.location.pathname.replace(/[^/]*$/, '');
+                document.getElementById('currentPath').textContent = currentPath || '/';
+                
+                // Discover HTML files using multiple methods
+                const files = await discoverHTMLFiles();
+                
+                if (files.length === 0) {
+                    showNoResults();
+                    showStatus('No HTML files found', 'error');
+                    return;
+                }
+                
+                allFiles = files;
+                displayedItems = 0;
+                
+                showStatus(`Found ${files.length} HTML files`, 'success');
+                loadFiles();
+                
+            } catch (error) {
+                console.error('Error scanning directory:', error);
+                showError();
+                showStatus('Scan failed', 'error');
+            }
+        }
+
+        async function discoverHTMLFiles() {
+            const files = [];
+            
+            // Check if we're running on file:// protocol
+            const isFileProtocol = window.location.protocol === 'file:';
+            
+            if (isFileProtocol) {
+                // For file:// protocol, we need to use a different approach
+                showStatus('File protocol detected - using manual discovery mode', 'scanning');
+                
+                // Only look for HTML files in the current directory (no subdirectories)
+                const commonNames = [
+                    // Files from your directory (based on screenshot)
+                    'Home.html',
+                    'Home - Copy.html',
+                    'create-a-self-contained-indexhtml-file-t-810.html',
+                    'file-cards-each-preview-in-a-white-card-824.html', 
+                    'header-bar-clean-title-html-file-explore-162.html',
+                    'main-grid-responsive-masonry-layout-3-5-773.html',
+                    '-1-modern-file-explorer-ui-389.html',
+                    '-1-developer-focused-thumbnail-gallery-w-978.html',
+                    
+                    // Common root-level files
+                    'index.html', 'index.htm', 'home.html', 'main.html', 'app.html',
+                    'test.html', 'sample.html', 'template.html', 'page.html',
+                    'about.html', 'contact.html', 'portfolio.html', 'gallery.html'
+                ];
+                
+                // For file:// protocol, show a manual input mode instead of auto-detection
+                // since iframe testing gives false positives
+                showStatus('File protocol detected - Manual mode required', 'error');
+                
+                // Only check for the exact files we know exist in your directory
+                const knownFiles = [
+                    { name: 'Home.html', size: 145000, date: '2025-06-16' },
+                    { name: 'Home - Copy.html', size: 134000, date: '2025-06-14' },
+                    { name: 'create-a-self-contained-indexhtml-file-t-810.html', size: 6000, date: '2025-06-17' },
+                    { name: 'file-cards-each-preview-in-a-white-card-824.html', size: 6000, date: '2025-06-17' }, 
+                    { name: 'header-bar-clean-title-html-file-explore-162.html', size: 3000, date: '2025-06-17' },
+                    { name: 'main-grid-responsive-masonry-layout-3-5-773.html', size: 6000, date: '2025-06-17' },
+                    { name: '-1-modern-file-explorer-ui-389.html', size: 13000, date: '2025-06-17' },
+                    { name: '-1-developer-focused-thumbnail-gallery-w-978.html', size: 17000, date: '2025-06-17' }
+                ];
+                
+                let foundCount = 0;
+                for (const fileInfo of knownFiles) {
+                    if (fileInfo.name !== currentFileName) {
+                        foundCount++;
+                        files.push({
+                            name: fileInfo.name,
+                            path: fileInfo.name,
+                            displayName: fileInfo.name.replace(/\.(html|htm)$/i, ''),
+                            discovered: false,
+                            lastModified: new Date(fileInfo.date),
+                            size: fileInfo.size,
+                            sizeFormatted: formatFileSize(fileInfo.size),
+                            method: 'manual-list'
+                        });
+                    }
+                }
+                
+                showStatus(`Showing ${foundCount} known HTML files from directory`, 'success');
+                
+                return files.sort((a, b) => a.name.localeCompare(b.name));
+            }
+            
+            // Method 1: Try to fetch a directory listing (works with HTTP servers)
+            try {
+                const response = await fetch('./');
+                if (response.ok) {
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Look for directory listing links - ONLY files in current directory
+                    const links = doc.querySelectorAll('a[href]');
+                    for (const link of links) {
+                        const href = link.getAttribute('href');
+                        
+                        // Only include files that:
+                        // 1. End with .html or .htm
+                        // 2. Are not this file
+                        // 3. Don't start with http (external links)
+                        // 4. Don't contain / (no subdirectories)
+                        // 5. Don't contain .. (no parent directories)
+                        if (href && 
+                            (href.endsWith('.html') || href.endsWith('.htm')) && 
+                            href !== currentFileName && 
+                            !href.startsWith('http') && 
+                            !href.includes('/') && 
+                            !href.includes('..') &&
+                            !href.includes('\\')) {
+                            
+                            const fileName = href;
+                            const fileInfo = await getFileInfo(href);
+                            files.push({
+                                name: fileName,
+                                path: href,
+                                displayName: fileName.replace(/\.(html|htm)$/i, ''),
+                                method: 'directory-listing',
+                                ...fileInfo
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log('Directory listing not available:', e.message);
+            }
+            
+            // Method 2: Try common filename patterns if no files found
+            if (files.length === 0) {
+                // Based on your directory, let's check for these specific files:
+                const commonNames = [
+                    // From your screenshot
+                    'Home.html',
+                    'create-a-self-contained-indexhtml-file-t-810.html',
+                    'file-cards-each-preview-in-a-white-card-824.html', 
+                    'header-bar-clean-title-html-file-explore-162.html',
+                    'main-grid-responsive-masonry-layout-3-5-773.html',
+                    '-1-modern-file-explorer-ui-389.html',
+                    '-1-developer-focused-thumbnail-gallery-w-978.html',
+                    'Home - Copy.html',
+                    
+                    // Common patterns
+                    'index.html', 'index.htm',
+                    'home.html', 'main.html', 'app.html', 'page.html',
+                    'test.html', 'sample.html', 'template.html', 'layout.html',
+                    'dashboard.html', 'landing.html', 'about.html', 'contact.html',
+                    'portfolio.html', 'gallery.html', 'blog.html', 'shop.html'
+                ];
+                
+                for (const fileName of commonNames) {
+                    if (fileName !== currentFileName) {
+                        try {
+                            const response = await fetch(fileName, { method: 'HEAD' });
+                            if (response.ok) {
+                                const fileInfo = await getFileInfo(fileName);
+                                files.push({
+                                    name: fileName,
+                                    path: fileName,
+                                    displayName: fileName.replace(/\.(html|htm)$/i, ''),
+                                    discovered: true,
+                                    method: 'pattern-matching',
+                                    ...fileInfo
+                                });
+                            }
+                        } catch (e) {
+                            // File doesn't exist, continue
+                        }
+                    }
+                }
+            }
+            
+            return files.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        async function getFileInfo(filePath) {
+            try {
+                const response = await fetch(filePath, { method: 'HEAD' });
+                const lastModified = response.headers.get('last-modified');
+                const contentLength = response.headers.get('content-length');
+                
+                return {
+                    lastModified: lastModified ? new Date(lastModified) : new Date(),
+                    size: contentLength ? parseInt(contentLength) : 0,
+                    sizeFormatted: contentLength ? formatFileSize(parseInt(contentLength)) : 'Unknown'
+                };
+            } catch (e) {
+                return {
+                    lastModified: new Date(),
+                    size: 0,
+                    sizeFormatted: 'Unknown'
+                };
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function formatDate(date) {
+            if (!date) return 'Unknown';
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) return 'Today';
+            if (diffDays === 2) return 'Yesterday';
+            if (diffDays <= 7) return `${diffDays - 1} days ago`;
+            
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined 
+            });
+        }
+
+        function handleSearch(e) {
+            currentSearch = e.target.value.toLowerCase();
+            displayedItems = 0;
+            loadFiles();
+        }
+
+        function handleFilter(e) {
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            currentFilter = e.target.dataset.filter;
+            displayedItems = 0;
+            loadFiles();
+        }
+
+        function loadFiles() {
+            const grid = document.getElementById('filesGrid');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const noResults = document.getElementById('noResults');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Hide error message and no results
+            errorMessage.classList.add('hidden');
+            noResults.classList.add('hidden');
+            
+            // Show loading
+            if (displayedItems === 0) {
+                grid.innerHTML = '';
+                loadingIndicator.classList.remove('hidden');
+            }
+
+            // Filter files
+            let filteredFiles = allFiles.filter(file => {
+                const matchesSearch = !currentSearch || 
+                    file.name.toLowerCase().includes(currentSearch) ||
+                    file.displayName.toLowerCase().includes(currentSearch);
+                
+                let matchesFilter = true;
+                switch (currentFilter) {
+                    case 'recent':
+                        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                        matchesFilter = file.lastModified > dayAgo;
+                        break;
+                    case 'large':
+                        matchesFilter = file.size > 50000; // > 50KB
+                        break;
+                    case 'small':
+                        matchesFilter = file.size > 0 && file.size <= 10000; // <= 10KB
+                        break;
+                    case 'index':
+                        matchesFilter = file.name.toLowerCase().includes('index') || 
+                                      file.name.toLowerCase().includes('home') ||
+                                      file.name.toLowerCase().includes('main');
+                        break;
+                    default: // 'all'
+                        matchesFilter = true;
+                }
+                
+                return matchesSearch && matchesFilter;
+            });
+
+            // Update results counter
+            document.getElementById('resultCount').textContent = filteredFiles.length;
+            
+            // Update size info
+            const totalSize = filteredFiles.reduce((sum, file) => sum + file.size, 0);
+            document.getElementById('sizeInfo').textContent = 
+                filteredFiles.length > 0 ? `Total size: ${formatFileSize(totalSize)}` : '';
+
+            // Hide loading
+            setTimeout(() => {
+                loadingIndicator.classList.add('hidden');
+                
+                if (filteredFiles.length === 0) {
+                    noResults.classList.remove('hidden');
+                    return;
+                }
+
+                // Load items for this page
+                const itemsToShow = filteredFiles.slice(displayedItems, displayedItems + itemsPerPage);
+                
+                if (displayedItems === 0) {
+                    grid.innerHTML = '';
+                }
+
+                itemsToShow.forEach((file, index) => {
+                    const fileCard = createFileCard(file);
+                    fileCard.style.animationDelay = `${index * 0.1}s`;
+                    grid.appendChild(fileCard);
+                });
+
+                displayedItems += itemsToShow.length;
+            }, displayedItems === 0 ? 800 : 300);
+        }
+
+        function createFileCard(file) {
+            const card = document.createElement('div');
+            card.className = 'style-card rounded-2xl shadow-lg overflow-hidden cursor-pointer fade-in';
+            card.style.height = '420px';
+            
+            // Generate tags based on file properties
+            const tags = [];
+            if (file.name.toLowerCase().includes('index')) tags.push('index');
+            if (file.size > 50000) tags.push('large');
+            if (file.size <= 10000 && file.size > 0) tags.push('small');
+            if (file.discovered) tags.push('auto-discovered');
+            
+            const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            if (file.lastModified > dayAgo) tags.push('recent');
+            
+            const tagsHtml = tags.slice(0, 3).map(tag => 
+                `<span class="tag px-2 py-1 rounded-full text-xs font-medium">${tag}</span>`
+            ).join('');
+
+            card.innerHTML = `
+                <div class="thumbnail relative" style="height: 70%;">
+                    <div class="thumbnail-loading">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                        <p class="text-xs">Loading preview...</p>
+                    </div>
+                    <iframe src="${file.path}" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+                    <div class="thumbnail-overlay">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">${file.displayName}</span>
+                            <span class="text-xs opacity-75">${file.sizeFormatted}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4" style="height: 30%;">
+                    <h3 class="text-lg font-bold text-gray-800 mb-1 truncate">${file.displayName}</h3>
+                    <div class="file-info">
+                        <div class="flex justify-between items-center text-sm text-gray-600">
+                            <span><i class="fas fa-hdd mr-1"></i>${file.sizeFormatted}</span>
+                            <span><i class="fas fa-calendar mr-1"></i>${formatDate(file.lastModified)}</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-1 mt-2">
+                        ${tagsHtml}
+                    </div>
+                </div>
+            `;
+
+            // Add click handler
+            card.addEventListener('click', () => openFile(file));
+
+            // Handle iframe loading
+            const iframe = card.querySelector('iframe');
+            const loadingDiv = card.querySelector('.thumbnail-loading');
+            
+            iframe.addEventListener('load', function() {
+                this.classList.add('loaded');
+                loadingDiv.style.display = 'none';
+            });
+            
+            iframe.addEventListener('error', function() {
+                loadingDiv.innerHTML = `
+                    <div class="thumbnail-error">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                        <p class="text-xs">Preview unavailable</p>
+                    </div>
+                `;
+            });
+
+            return card;
+        }
+
+        function openFile(file) {
+            // Open the HTML file in a new tab
+            window.open(file.path, '_blank');
+        }
+
+        function showNoResults() {
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.getElementById('noResults').classList.remove('hidden');
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        function showError() {
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.getElementById('noResults').classList.add('hidden');
+            document.getElementById('errorMessage').classList.remove('hidden');
+        }
+
+        function refreshFiles() {
+            showStatus('Refreshing...', 'scanning');
+            allFiles = [];
+            displayedItems = 0;
+            
+            // Reset UI
+            document.getElementById('filesGrid').innerHTML = '';
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('noResults').classList.add('hidden');
+            document.getElementById('errorMessage').classList.add('hidden');
+            
+            // Scan again
+            setTimeout(() => {
+                scanDirectory();
+            }, 500);
+        }
+
+        function handleScroll() {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+                const filteredFiles = getFilteredFiles();
+                if (displayedItems < filteredFiles.length) {
+                    loadFiles();
+                }
+            }
+        }
+
+        function getFilteredFiles() {
+            return allFiles.filter(file => {
+                const matchesSearch = !currentSearch || 
+                    file.name.toLowerCase().includes(currentSearch) ||
+                    file.displayName.toLowerCase().includes(currentSearch);
+                
+                let matchesFilter = true;
+                switch (currentFilter) {
+                    case 'recent':
+                        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                        matchesFilter = file.lastModified > dayAgo;
+                        break;
+                    case 'large':
+                        matchesFilter = file.size > 50000;
+                        break;
+                    case 'small':
+                        matchesFilter = file.size > 0 && file.size <= 10000;
+                        break;
+                    case 'index':
+                        matchesFilter = file.name.toLowerCase().includes('index') || 
+                                      file.name.toLowerCase().includes('home') ||
+                                      file.name.toLowerCase().includes('main');
+                        break;
+                    default:
+                        matchesFilter = true;
+                }
+                
+                return matchesSearch && matchesFilter;
+            });
+        }
+
+        function clearFilters() {
+            currentFilter = 'all';
+            currentSearch = '';
+            displayedItems = 0;
+            
+            document.getElementById('searchInput').value = '';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('[data-filter="all"]').classList.add('active');
+            
+            loadFiles();
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Manual file addition functions
+        function addManualFile() {
+            const input = document.getElementById('manualFileName');
+            const fileName = input.value.trim();
+            
+            if (!fileName) {
+                showStatus('Please enter a filename', 'error');
+                return;
+            }
+            
+            // Add .html extension if not present
+            const finalFileName = fileName.endsWith('.html') || fileName.endsWith('.htm') ? 
+                                 fileName : fileName + '.html';
+            
+            // Check if file already exists in our list
+            if (allFiles.some(f => f.name === finalFileName)) {
+                showStatus('File already in list', 'error');
+                return;
+            }
+            
+            // Add the file to our list
+            allFiles.push({
+                name: finalFileName,
+                path: finalFileName,
+                displayName: finalFileName.replace(/\.(html|htm)$/i, ''),
+                discovered: false,
+                manual: true,
+                lastModified: new Date(),
+                size: 0,
+                sizeFormatted: 'Unknown',
+                method: 'manual'
+            });
+            
+            input.value = '';
+            showStatus(`Added ${finalFileName} manually`, 'success');
+            
+            // Refresh the display
+            displayedItems = 0;
+            loadFiles();
+        }
+
+        function showManualMode() {
+            const currentList = allFiles.map(f => f.name).join(', ');
+            const prompt = `Current files: ${currentList || 'None'}\n\nEnter additional HTML filenames (comma-separated):`;
+            const input = window.prompt(prompt);
+            
+            if (input) {
+                const fileNames = input.split(',').map(name => name.trim()).filter(name => name);
+                let addedCount = 0;
+                
+                fileNames.forEach(fileName => {
+                    const finalFileName = fileName.endsWith('.html') || fileName.endsWith('.htm') ? 
+                                         fileName : fileName + '.html';
+                    
+                    if (!allFiles.some(f => f.name === finalFileName)) {
+                        allFiles.push({
+                            name: finalFileName,
+                            path: finalFileName,
+                            displayName: finalFileName.replace(/\.(html|htm)$/i, ''),
+                            discovered: false,
+                            manual: true,
+                            lastModified: new Date(),
+                            size: 0,
+                            sizeFormatted: 'Unknown',
+                            method: 'manual'
+                        });
+                        addedCount++;
+                    }
+                });
+                
+                if (addedCount > 0) {
+                    showStatus(`Added ${addedCount} files manually`, 'success');
+                    displayedItems = 0;
+                    loadFiles();
+                } else {
+                    showStatus('No new files added', 'error');
+                }
+            }
+        }
+
+        // Folder browsing functionality
+        let currentFolderFiles = [];
+        let isShowingFolderFiles = false;
+
+        function setupFolderBrowsing() {
+            const selectFolderBtn = document.getElementById('selectFolderBtn');
+            const addFilesBtn = document.getElementById('addFilesBtn');
+            const currentFolderBtn = document.getElementById('currentFolderBtn');
+            const folderInput = document.getElementById('folderInput');
+            const filesInput = document.getElementById('filesInput');
+
+            if (selectFolderBtn) {
+                selectFolderBtn.addEventListener('click', () => {
+                    folderInput.click();
+                });
+            }
+
+            if (addFilesBtn) {
+                addFilesBtn.addEventListener('click', () => {
+                    filesInput.click();
+                });
+            }
+
+            if (currentFolderBtn) {
+                currentFolderBtn.addEventListener('click', () => {
+                    isShowingFolderFiles = false;
+                    // Remove added files when returning to current directory
+                    allFiles = allFiles.filter(f => f.method !== 'file-add' && f.method !== 'folder-browse');
+                    refreshFiles();
+                    updateFolderButtons();
+                });
+            }
+
+            if (folderInput) {
+                folderInput.addEventListener('change', handleFolderSelection);
+            }
+
+            if (filesInput) {
+                filesInput.addEventListener('change', handleFileSelection);
+            }
+        }
+
+        function handleFolderSelection(event) {
+            const files = Array.from(event.target.files);
+            const htmlFiles = files.filter(file => 
+                file.name.toLowerCase().endsWith('.html') || 
+                file.name.toLowerCase().endsWith('.htm')
+            );
+
+            if (htmlFiles.length === 0) {
+                showStatus('No HTML files found in selected folder', 'error');
+                return;
+            }
+
+            // Replace allFiles with the folder files
+            allFiles = htmlFiles.map(file => ({
+                name: file.name,
+                path: URL.createObjectURL(file),
+                displayName: file.name.replace(/\.(html|htm)$/i, ''),
+                discovered: true,
+                lastModified: new Date(file.lastModified),
+                size: file.size,
+                sizeFormatted: formatFileSize(file.size),
+                method: 'folder-browse',
+                file: file // Store the actual file object for preview
+            }));
+
+            isShowingFolderFiles = true;
+            displayedItems = 0;
+            
+            // Clear current display and show folder files
+            document.getElementById('filesGrid').innerHTML = '';
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.getElementById('noResults').classList.add('hidden');
+            document.getElementById('errorMessage').classList.add('hidden');
+            
+            loadFiles();
+            updateFolderButtons();
+            
+            const folderPath = htmlFiles[0].webkitRelativePath ? 
+                              htmlFiles[0].webkitRelativePath.split('/')[0] : 
+                              'Selected Folder';
+            showStatus(`Loaded ${htmlFiles.length} HTML files from folder`, 'success');
+            
+            // Update directory info
+            document.getElementById('currentPath').textContent = `Browsing folder: ${folderPath} (${htmlFiles.length} HTML files)`;
+            
+            // Update results counter
+            updateResultsCounter();
+        }
+
+        function handleFileSelection(event) {
+            const files = Array.from(event.target.files);
+            const htmlFiles = files.filter(file => 
+                file.name.toLowerCase().endsWith('.html') || 
+                file.name.toLowerCase().endsWith('.htm')
+            );
+
+            if (htmlFiles.length === 0) {
+                showStatus('No HTML files selected', 'error');
+                return;
+            }
+
+            // Add selected files to existing files (don't replace)
+            const newFiles = htmlFiles.map(file => ({
+                name: file.name,
+                path: URL.createObjectURL(file),
+                displayName: file.name.replace(/\.(html|htm)$/i, ''),
+                discovered: true,
+                lastModified: new Date(file.lastModified),
+                size: file.size,
+                sizeFormatted: formatFileSize(file.size),
+                method: 'file-add',
+                file: file // Store the actual file object for preview
+            }));
+
+            // Filter out duplicates (same name)
+            const existingNames = allFiles.map(f => f.name);
+            const uniqueNewFiles = newFiles.filter(f => !existingNames.includes(f.name));
+
+            if (uniqueNewFiles.length === 0) {
+                showStatus('All selected files are already in the list', 'warning');
+                return;
+            }
+
+            // Add unique files to the current list
+            allFiles.push(...uniqueNewFiles);
+            
+            // Update display
+            displayedItems = allFiles.length - uniqueNewFiles.length; // Start from where we left off
+            loadFiles();
+            
+            const addedCount = uniqueNewFiles.length;
+            const skippedCount = htmlFiles.length - addedCount;
+            
+            let statusMessage = `Added ${addedCount} HTML file${addedCount === 1 ? '' : 's'}`;
+            if (skippedCount > 0) {
+                statusMessage += ` (${skippedCount} duplicate${skippedCount === 1 ? '' : 's'} skipped)`;
+            }
+            showStatus(statusMessage, 'success');
+            
+            // Update directory info if showing current mode
+            if (!isShowingFolderFiles) {
+                document.getElementById('currentPath').textContent = `Current directory + ${allFiles.filter(f => f.method === 'file-add').length} added files`;
+            }
+            
+            // Update results counter
+            updateResultsCounter();
+            
+            // Clear the file input for next selection
+            event.target.value = '';
+        }
+
+        function updateFolderButtons() {
+            const selectFolderBtn = document.getElementById('selectFolderBtn');
+            const addFilesBtn = document.getElementById('addFilesBtn');
+            const currentFolderBtn = document.getElementById('currentFolderBtn');
+            
+            if (selectFolderBtn && addFilesBtn && currentFolderBtn) {
+                const addedFilesCount = allFiles.filter(f => f.method === 'file-add').length;
+                
+                if (isShowingFolderFiles) {
+                    // Folder mode - update folder button
+                    selectFolderBtn.classList.remove('from-blue-500', 'to-purple-600');
+                    selectFolderBtn.classList.add('from-green-500', 'to-green-600');
+                    selectFolderBtn.innerHTML = '<i class="fas fa-check text-sm sm:text-lg"></i><span class="text-sm sm:text-base">Folder Loaded</span>';
+                    
+                    // Disable add files button in folder mode
+                    addFilesBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    addFilesBtn.disabled = true;
+                    
+                    currentFolderBtn.classList.remove('bg-gray-600');
+                    currentFolderBtn.classList.add('bg-blue-600');
+                } else {
+                    // Current directory mode
+                    selectFolderBtn.classList.remove('from-green-500', 'to-green-600');
+                    selectFolderBtn.classList.add('from-blue-500', 'to-purple-600');
+                    selectFolderBtn.innerHTML = '<i class="fas fa-folder-open text-sm sm:text-lg"></i><span class="text-sm sm:text-base">Browse Folder</span>';
+                    
+                    // Enable add files button and show count if files added
+                    addFilesBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    addFilesBtn.disabled = false;
+                    
+                    if (addedFilesCount > 0) {
+                        addFilesBtn.classList.remove('from-green-500', 'to-emerald-600');
+                        addFilesBtn.classList.add('from-green-600', 'to-emerald-700');
+                        addFilesBtn.innerHTML = `<i class="fas fa-file-plus text-sm sm:text-lg"></i><span class="text-sm sm:text-base">Added (${addedFilesCount})</span>`;
+                    } else {
+                        addFilesBtn.classList.remove('from-green-600', 'to-emerald-700');
+                        addFilesBtn.classList.add('from-green-500', 'to-emerald-600');
+                        addFilesBtn.innerHTML = '<i class="fas fa-file-plus text-sm sm:text-lg"></i><span class="text-sm sm:text-base">Add Files</span>';
+                    }
+                    
+                    currentFolderBtn.classList.remove('bg-blue-600');
+                    currentFolderBtn.classList.add('bg-gray-600');
+                }
+            }
+        }
+
+        // Allow Enter key to add files
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('manualFileName');
+            if (input) {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        addManualFile();
+                    }
+                });
+            }
+            
+            // Setup folder browsing
+            setupFolderBrowsing();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1004 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FabAI - App Gallery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="display-config.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(600px at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                        rgba(147, 51, 234, 0.15) 0%, 
+                        rgba(147, 51, 234, 0.05) 40%, 
+                        transparent 80%);
+            pointer-events: none;
+            z-index: -1;
+            transition: all 0.3s ease;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at calc(var(--mouse-x, 50%) + 200px) calc(var(--mouse-y, 50%) + 100px), 
+                    rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at calc(var(--mouse-x, 50%) - 150px) calc(var(--mouse-y, 50%) - 80px), 
+                    rgba(147, 51, 234, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at calc(var(--mouse-x, 50%) + 100px) calc(var(--mouse-y, 50%) - 120px), 
+                    rgba(168, 85, 247, 0.04) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: -1;
+            transition: all 0.2s ease;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .style-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .style-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .style-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05), rgba(236, 72, 153, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .style-card:hover::before {
+            opacity: 1;
+        }
+        
+        .thumbnail {
+            position: relative;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+        
+        .thumbnail iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: scale(0.29);
+            transform-origin: top left;
+            width: 344.83%;
+            height: 344.83%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            overflow: hidden;
+        }
+        
+        /* Custom scrollbar styling for iframes */
+        .thumbnail iframe::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .thumbnail iframe::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .thumbnail iframe::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        .thumbnail iframe::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .thumbnail iframe {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+        }
+        
+        .thumbnail iframe.loaded {
+            opacity: 1;
+        }
+        
+        .thumbnail-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #6b7280;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .thumbnail-error {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            display: flex;
+            items-center: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #6b7280;
+        }
+        
+        .thumbnail::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981);
+            background-size: 300% 300%;
+            border-radius: inherit;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: -1;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        .style-card:hover .thumbnail::after {
+            opacity: 1;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .thumbnail-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: transparent;
+            color: white;
+            padding: 8px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .style-card:hover .thumbnail-overlay {
+            transform: translateY(100%);
+        }
+        
+        .tag {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .tag:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .tag:hover::before {
+            left: 100%;
+        }
+        
+        .tag:active {
+            transform: scale(0.95);
+        }
+        
+        .favorites-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+        
+        .favorites-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .favorites-btn.favorited {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .favorites-btn.favorited:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .thumbnail-tags {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            z-index: 5;
+            max-width: calc(100% - 80px);
+        }
+        
+        .thumbnail-tag {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .thumbnail-tag:hover {
+            background: rgba(59, 130, 246, 0.8);
+            transform: scale(1.05);
+        }
+        
+        .filter-btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.8), rgba(139, 92, 246, 0.8), rgba(236, 72, 153, 0.8));
+            border-radius: 12px;
+            padding: 2px;
+            z-index: -1;
+            backdrop-filter: blur(10px);
+        }
+        
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
+        }
+        
+        /* Thumbnail specific gradients for different categories */
+        .thumbnail-dark { background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); }
+        .thumbnail-minimal { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
+        .thumbnail-colorful { background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%); }
+        .thumbnail-elegant { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .thumbnail-modern { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .thumbnail-playful { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%); }
+        .thumbnail-professional { background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); }
+        .thumbnail-futuristic { background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); }
+        .thumbnail-glass { background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 100%); }
+        
+        /* Confetti Animation */
+        .confetti-container {
+            position: absolute;
+            pointer-events: none;
+            z-index: 100;
+            width: 100px;
+            height: 100px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .confetti-piece {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: confetti-fall 1.2s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .confetti-piece:nth-child(1) { background: #ff6b6b; animation-delay: 0s; }
+        .confetti-piece:nth-child(2) { background: #4ecdc4; animation-delay: 0.1s; }
+        .confetti-piece:nth-child(3) { background: #45b7d1; animation-delay: 0.2s; }
+        .confetti-piece:nth-child(4) { background: #96ceb4; animation-delay: 0.3s; }
+        .confetti-piece:nth-child(5) { background: #feca57; animation-delay: 0.1s; }
+        .confetti-piece:nth-child(6) { background: #ff9ff3; animation-delay: 0.2s; }
+        .confetti-piece:nth-child(7) { background: #54a0ff; animation-delay: 0s; }
+        .confetti-piece:nth-child(8) { background: #5f27cd; animation-delay: 0.3s; }
+        
+        @keyframes confetti-fall {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(60px) rotate(360deg) scale(0.3);
+            }
+        }
+        
+        .confetti-piece:nth-child(odd) {
+            animation-name: confetti-fall-left;
+        }
+        
+        .confetti-piece:nth-child(even) {
+            animation-name: confetti-fall-right;
+        }
+        
+        @keyframes confetti-fall-left {
+            0% {
+                opacity: 1;
+                transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(60px) translateX(-40px) rotate(360deg) scale(0.3);
+            }
+        }
+        
+        @keyframes confetti-fall-right {
+            0% {
+                opacity: 1;
+                transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(60px) translateX(40px) rotate(360deg) scale(0.3);
+            }
+        }
+        
+        /* USP Animation Effects */
+        @keyframes subtlePulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            }
+            50% { 
+                transform: scale(1.02);
+                box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+            }
+        }
+        
+        @keyframes zoomInOut {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 0.9;
+            }
+            50% { 
+                transform: scale(1.05);
+                opacity: 1;
+            }
+        }
+        
+        .usp-banner {
+            animation: subtlePulse 3s ease-in-out infinite;
+        }
+        
+        .usp-subtitle {
+            animation: zoomInOut 2.5s ease-in-out infinite;
+        }
+        
+        @keyframes jiggle {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-2deg) scale(1.02); }
+            50% { transform: rotate(2deg) scale(1.01); }
+            75% { transform: rotate(-1deg) scale(1.02); }
+        }
+        
+        @keyframes zoomBounce {
+            0%, 15% { transform: scale(1); }
+            5% { transform: scale(1.03); }
+            7% { transform: scale(0.98); }
+            10% { transform: scale(1.02); }
+            15%, 100% { transform: scale(1); }
+        }
+        
+        @keyframes typing {
+            0% { width: 0; }
+            20% { width: 100%; }
+            100% { width: 100%; }
+        }
+        
+        @keyframes blink {
+            0%, 50% { border-color: transparent; }
+            51%, 100% { border-color: #8b5cf6; }
+        }
+        
+        .typing-text {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 15s ease-in-out infinite;
+            display: inline-block;
+            max-width: fit-content;
+        }
+        
+        .usp-subtitle-bg {
+            animation: zoomBounce 15s ease-in-out infinite 3s;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <div class="text-center mb-12">
+            <!-- Pink Banner -->
+           <br>  <div class="inline-block mb-8">
+                <div class="text-lg font-semibold typing-text" style="color: #8b5cf6;">
+                    The Best FREE <span style="color: #ec4899;">Loveable, Bolt, Ezsite</span> Alternative!
+                </div>
+            </div>
+
+            <!-- Main Heading -->
+            <!--<h1 class="text-4xl md:text-7xl font-black mb-6 leading-tight">
+                <span class="text-black">100% Free AI Designer, </span>
+                <span class="text-pink-500"></span>
+                <br>
+                <span class="bg-gradient-to-r from-pink-400 via-red-400 to-orange-400 bg-clip-text text-transparent">Coder, Builder</span>
+            </h1> -->
+
+             <!-- Main Heading -->
+            <h1 class="text-3xl md:text-6xl font-bold mb-6 leading-tight">
+                <span class="bg-gradient-to-r from-pink-400 to-pink-500 bg-clip-text text-transparent" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); font-weight: 700; letter-spacing: -0.02em;">100% Free</span>
+                <span class="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); font-weight: 700; letter-spacing: -0.02em;"> AI Designer,<br> Coder, Builder</span>
+                               
+            </h1>
+
+             <h1 class="text-xl md:text-3xl font-medium mb-6 leading-tight">
+                <span class="text-pink-500"></span>
+                <span class="inline-block px-8 py-4 rounded-xl text-white opacity-90 usp-subtitle-bg" style="font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.15); letter-spacing: 0.01em;">No signup or upgrade needed</span><br>
+            </h1>
+            
+            
+            <!-- Subtitle -->
+            <p class="text-lg md:text-xl text-white text-opacity-95 max-w-4xl mx-auto mb-8 leading-relaxed" style="font-weight: 300; text-shadow: 0 1px 2px rgba(0,0,0,0.1); letter-spacing: 0.005em;">
+                Create Professionally Designed Reports, Resumes, Proposals, Blog Posts, Social Posts,<br>
+                Infographics, Emails, Data Dashboards, Mini Sites, Link Trees & Simple Apps - <strong style="font-weight: 500;">within minutes</strong>
+            </p>
+            
+            <!-- Search Bar -->
+            <!--<div class="search-container max-w-2xl mx-auto mb-8">
+                <div class="relative bg-white bg-opacity-95 backdrop-blur-md rounded-xl p-1 shadow-lg">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search custom agents.." 
+                        class="w-full px-6 py-4 text-lg border-0 rounded-lg focus:outline-none focus:ring-0 bg-transparent"
+                    >
+                    <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors">
+                        <i class="fas fa-search text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>-->
+        
+       
+        
+        <!-- No Results -->
+        
+    </div>
+
+    <script>
+        // Style Library Data - now loaded from display-config.js
+        let styleLibrary = [];
+        let filterConfig = [];
+        
+        // Load configuration if available
+        if (typeof displayConfig !== 'undefined') {
+            styleLibrary = displayConfig.styleLibrary || [];
+            filterConfig = displayConfig.filters || [];
+            console.log(`Loaded ${styleLibrary.length} items from Excel configuration`);
+        } else {
+            console.warn('Display configuration not loaded, using fallback data');
+            // Fallback to empty array or load minimal data
+            styleLibrary = [];
+        }
+
+        // State management
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let displayedItems = 0;
+        let randomizedStyles = []; // Store randomized order once
+        let favorites = JSON.parse(localStorage.getItem('appFavorites') || '[]');
+        const itemsPerPage = 12;
+
+        // Favorites functionality
+        function getFavoriteStatus(itemName) {
+            return favorites.includes(itemName);
+        }
+
+        function createConfetti(element) {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.className = 'confetti-container';
+            
+            // Create 8 confetti pieces
+            for (let i = 0; i < 8; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                
+                // Random positioning for more natural effect
+                const randomX = (Math.random() - 0.5) * 20;
+                const randomY = (Math.random() - 0.5) * 20;
+                piece.style.left = `${50 + randomX}%`;
+                piece.style.top = `${50 + randomY}%`;
+                
+                confettiContainer.appendChild(piece);
+            }
+            
+            element.appendChild(confettiContainer);
+            
+            // Remove confetti after animation completes
+            setTimeout(() => {
+                if (confettiContainer.parentNode) {
+                    confettiContainer.parentNode.removeChild(confettiContainer);
+                }
+            }, 1200);
+        }
+
+        function toggleFavorite(itemName, event) {
+            event.stopPropagation();
+            
+            const index = favorites.indexOf(itemName);
+            const isAdding = index === -1;
+            
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(itemName);
+            }
+            
+            localStorage.setItem('appFavorites', JSON.stringify(favorites));
+            
+            // Update the UI
+            const favoriteBtn = event.target.closest('.favorites-btn');
+            if (favoriteBtn) {
+                favoriteBtn.classList.toggle('favorited');
+                
+                // Trigger confetti only when adding to favorites
+                if (isAdding) {
+                    createConfetti(favoriteBtn);
+                }
+            }
+            
+            // If currently viewing favorites, refresh the view
+            if (currentFilter === 'favorites') {
+                displayedItems = 0;
+                loadStyles();
+            }
+        }
+
+        function filterByTag(tag, event) {
+            event.stopPropagation();
+            
+            // Update search with the tag
+            currentSearch = tag.toLowerCase();
+            document.getElementById('searchInput').value = tag;
+            
+            // Reset filter to 'all' to show all items with this tag
+            currentFilter = 'all';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('[data-filter="all"]').classList.add('active');
+            
+            displayedItems = 0;
+            loadStyles();
+        }
+
+        // Initialize the gallery
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generate filter buttons dynamically
+            generateFilterButtons();
+            
+            // Randomize styles once on page load
+            randomizedStyles = [...styleLibrary];
+            randomizedStyles.sort(() => Math.random() - 0.5);
+            
+            setupEventListeners();
+            loadStyles();
+        });
+
+        function generateFilterButtons() {
+            const filterContainer = document.getElementById('filterControls');
+            
+            if (filterConfig.length === 0) {
+                // Fallback filters if no config loaded
+                filterConfig = [
+                    { filter: 'all', icon: 'fas fa-th-large', label: 'All Styles' },
+                    { filter: 'favorites', icon: 'fas fa-heart', label: 'Favourite' },
+                    { filter: 'latest', icon: 'fas fa-clock', label: 'Featured' }
+                ];
+            }
+            
+            filterContainer.innerHTML = '';
+            
+            // Add the standard filters first
+            const standardFilters = [
+                { filter: 'all', icon: 'fas fa-th-large', label: 'All Styles' },
+                { filter: 'favorites', icon: 'fas fa-heart', label: 'Favourite' },
+                { filter: 'latest', icon: 'fas fa-clock', label: 'Featured' }
+            ];
+            
+            standardFilters.forEach(filterItem => {
+                const button = document.createElement('button');
+                button.className = `filter-btn px-6 py-3 rounded-full font-medium bg-white bg-opacity-90 backdrop-blur-md shadow-lg ${filterItem.filter === 'all' ? 'active' : ''}`;
+                button.setAttribute('data-filter', filterItem.filter);
+                button.innerHTML = `<i class="${filterItem.icon} mr-2"></i>${filterItem.label}`;
+                
+                button.addEventListener('click', handleFilter);
+                filterContainer.appendChild(button);
+            });
+            
+            // Add category filters (skip the first 2 which are all and latest)
+            filterConfig.slice(2).forEach(filterItem => {
+                const button = document.createElement('button');
+                button.className = 'filter-btn px-6 py-3 rounded-full font-medium bg-white bg-opacity-90 backdrop-blur-md shadow-lg';
+                button.setAttribute('data-filter', filterItem.filter);
+                button.innerHTML = `<i class="${filterItem.icon} mr-2"></i>${filterItem.label}`;
+                
+                button.addEventListener('click', handleFilter);
+                filterContainer.appendChild(button);
+            });
+        }
+
+        function setupEventListeners() {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', debounce(handleSearch, 300));
+
+            // Infinite scroll
+            window.addEventListener('scroll', handleScroll);
+        }
+
+        function handleSearch(e) {
+            currentSearch = e.target.value.toLowerCase();
+            displayedItems = 0;
+            loadStyles();
+        }
+
+        function handleFilter(e) {
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            currentFilter = e.target.dataset.filter;
+            displayedItems = 0;
+            loadStyles();
+        }
+
+        function loadStyles() {
+            const grid = document.getElementById('stylesGrid');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const noResults = document.getElementById('noResults');
+            
+            // Show loading
+            if (displayedItems === 0) {
+                grid.innerHTML = '';
+                loadingIndicator.classList.remove('hidden');
+                noResults.classList.add('hidden');
+            }
+
+            // Filter styles from the pre-randomized array
+            let filteredStyles = randomizedStyles.filter(style => {
+                const matchesSearch = !currentSearch || 
+                    style.name.toLowerCase().includes(currentSearch) ||
+                    style.description.toLowerCase().includes(currentSearch) ||
+                    style.tags.some(tag => tag.toLowerCase().includes(currentSearch));
+                
+                let matchesFilter = false;
+                if (currentFilter === 'all') {
+                    matchesFilter = true;
+                } else if (currentFilter === 'favorites') {
+                    matchesFilter = getFavoriteStatus(style.name);
+                } else if (currentFilter === 'latest') {
+                    matchesFilter = style.featured;
+                } else if (currentFilter === 'data') {
+                    matchesFilter = style.tags.some(tag => ['data', 'charts', 'analytics', 'infographic'].includes(tag));
+                } else if (currentFilter === 'media') {
+                    matchesFilter = style.tags.some(tag => ['media', 'gallery', 'video', 'photos'].includes(tag));
+                } else {
+                    matchesFilter = style.category === currentFilter;
+                }
+                
+                return matchesSearch && matchesFilter;
+            });
+
+            // Update results counter
+            document.getElementById('resultCount').textContent = filteredStyles.length;
+
+            // Hide loading
+            setTimeout(() => {
+                loadingIndicator.classList.add('hidden');
+                
+                if (filteredStyles.length === 0) {
+                    noResults.classList.remove('hidden');
+                    return;
+                }
+
+                // Load items for this page
+                const itemsToShow = filteredStyles.slice(displayedItems, displayedItems + itemsPerPage);
+                
+                if (displayedItems === 0) {
+                    grid.innerHTML = '';
+                }
+
+                itemsToShow.forEach((style, index) => {
+                    const styleCard = createStyleCard(style);
+                    styleCard.style.animationDelay = `${index * 0.1}s`;
+                    grid.appendChild(styleCard);
+                });
+
+                displayedItems += itemsToShow.length;
+            }, displayedItems === 0 ? 800 : 300);
+        }
+
+        function createStyleCard(style) {
+            const card = document.createElement('div');
+            card.className = 'style-card rounded-2xl shadow-lg overflow-hidden cursor-pointer fade-in';
+            card.style.height = '350px'; // Fixed height for consistent 75%/25% split
+            
+            // Use only the tags from the configuration
+            const styleTags = style.tags || [];
+            
+            const tagsHtml = styleTags.slice(0, 3).map(tag => 
+                `<span class="tag px-3 py-1 rounded-full text-xs font-medium" onclick="filterByTag('${tag}', event)">${tag}</span>`
+            ).join('');
+
+            const isFavorited = getFavoriteStatus(style.name);
+
+            // Use local filename for thumbnail display (to show actual local HTML pages)
+            // but keep URL for the actual page links
+            const thumbnailSrc = style.filename;
+
+            card.innerHTML = `
+                <div class="thumbnail relative" style="height: 70%;">
+                    <div class="thumbnail-loading">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                        <p class="text-xs">Loading preview...</p>
+                    </div>
+                    <iframe src="${thumbnailSrc}" loading="lazy" sandbox="allow-same-origin allow-scripts"></iframe>
+                    <div class="favorites-btn ${isFavorited ? 'favorited' : ''}" onclick="toggleFavorite('${style.name}', event)">
+                        <i class="fas fa-heart text-sm"></i>
+                    </div>
+                    <div class="thumbnail-overlay">
+                    </div>
+                </div>
+                <div class="p-4 pb-6 flex flex-col justify-between" style="height: 30%;">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-1">${style.name}</h3>
+                        <p class="text-gray-600 text-xs mb-2 line-clamp-1">${style.description}</p>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        ${tagsHtml}
+                    </div>
+                </div>
+            `;
+
+            // Add click handler for the main card (excluding buttons)
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.favorites-btn') && !e.target.closest('.tag')) {
+                    openStyle(style);
+                }
+            });
+
+            // Handle iframe loading
+            const iframe = card.querySelector('iframe');
+            const loadingDiv = card.querySelector('.thumbnail-loading');
+            
+            iframe.addEventListener('load', function() {
+                this.classList.add('loaded');
+                loadingDiv.style.display = 'none';
+            });
+            
+            iframe.addEventListener('error', function() {
+                loadingDiv.innerHTML = `
+                    <div class="thumbnail-error">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                        <p class="text-xs">Preview unavailable</p>
+                    </div>
+                `;
+            });
+
+            return card;
+        }
+
+        function openStyle(style) {
+            // Use the URL from the configuration if available
+            if (style.url) {
+                window.open(style.url, '_blank');
+            } else {
+                // Fallback: Convert style name to URL-friendly format for mode page
+                const modeName = style.name.toLowerCase()
+                    .replace(/\s+/g, '-')           // Replace spaces with hyphens
+                    .replace(/[^a-z0-9\-]/g, '')    // Remove special characters except hyphens
+                    .replace(/\-+/g, '-')           // Replace multiple hyphens with single
+                    .replace(/^\-|\-$/g, '');       // Remove leading/trailing hyphens
+                
+                // Open the mode page
+                const modeUrl = `https://fabai.dev/mode/${modeName}/`;
+                window.open(modeUrl, '_blank');
+            }
+        }
+
+        function handleScroll() {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+                const filteredStyles = getFilteredStyles();
+                if (displayedItems < filteredStyles.length) {
+                    loadStyles();
+                }
+            }
+        }
+
+        function getFilteredStyles() {
+            return randomizedStyles.filter(style => {
+                const matchesSearch = !currentSearch || 
+                    style.name.toLowerCase().includes(currentSearch) ||
+                    style.description.toLowerCase().includes(currentSearch) ||
+                    style.tags.some(tag => tag.toLowerCase().includes(currentSearch));
+                
+                let matchesFilter = false;
+                if (currentFilter === 'all') {
+                    matchesFilter = true;
+                } else if (currentFilter === 'favorites') {
+                    matchesFilter = getFavoriteStatus(style.name);
+                } else if (currentFilter === 'latest') {
+                    matchesFilter = style.featured;
+                } else if (currentFilter === 'data') {
+                    matchesFilter = style.tags.some(tag => ['data', 'charts', 'analytics', 'infographic'].includes(tag));
+                } else if (currentFilter === 'media') {
+                    matchesFilter = style.tags.some(tag => ['media', 'gallery', 'video', 'photos'].includes(tag));
+                } else {
+                    matchesFilter = style.category === currentFilter;
+                }
+                
+                return matchesSearch && matchesFilter;
+            });
+        }
+
+        function clearFilters() {
+            currentFilter = 'all';
+            currentSearch = '';
+            displayedItems = 0;
+            
+            // Re-randomize when clearing filters for fresh experience
+            randomizedStyles = [...styleLibrary];
+            randomizedStyles.sort(() => Math.random() - 0.5);
+            
+            document.getElementById('searchInput').value = '';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('[data-filter="all"]').classList.add('active');
+            
+            loadStyles();
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Interactive mouse-following background
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = (e.clientX / window.innerWidth) * 100;
+            const mouseY = (e.clientY / window.innerHeight) * 100;
+            
+            document.documentElement.style.setProperty('--mouse-x', mouseX + '%');
+            document.documentElement.style.setProperty('--mouse-y', mouseY + '%');
+        });
+        
+        // Initialize with center position
+        document.documentElement.style.setProperty('--mouse-x', '50%');
+        document.documentElement.style.setProperty('--mouse-y', '50%');
+    </script>
+</body>
+</html>

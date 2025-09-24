@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Matrix | Tactical Productivity</title>
+  <meta name="description" content="A modern, tactical productivity interface for focused work">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+            surface: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+            },
+            accent: {
+              400: '#a5f3fc',
+              500: '#22d3ee',
+              600: '#0891b2',
+            },
+            success: {
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+            },
+            warning: {
+              400: '#facc15',
+              500: '#eab308',
+              600: '#ca8a04',
+            },
+            danger: {
+              400: '#f87171',
+              500: '#ef4444',
+              600: '#dc2626',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['Fira Code', 'monospace'],
+          },
+          boxShadow: {
+            'tile': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+            'tile-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            'entry': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+            'entry-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            'focus': '0 0 0 3px rgba(59, 130, 246, 0.5)',
+          },
+          transitionProperty: {
+            'size': 'width, height',
+            'spacing': 'margin, padding',
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Smooth transitions */
+    * {
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    
+    /* Focus styles */
+    [contenteditable]:focus, input:focus, textarea:focus, select:focus, button:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+    }
+    
+    /* Drag and drop indicators */
+    .drag-over {
+      position: relative;
+    }
+    .drag-over::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: theme('colors.primary.500');
+      z-index: 10;
+    }
+    
+    /* Style for board drag-over */
+    .board-drag-over {
+      border-top: 2px solid theme('colors.primary.500');
+    }
+    
+    /* Priority indicators */
+    /* Light Mode */
+    .priority-0 { 
+      border-left: 3px solid #f1f2f6; 
+      background-color: #f1f2f6 !important;
+      color: #57606f !important;
+    }
+    .priority-1 { 
+      border-left: 3px solid #808e9b; 
+      background-color: #808e9b !important;
+      color: #f1f2f6 !important;
+    }
+    .priority-2 { 
+      border-left: 3px solid #d2dae2; 
+      background-color: #d2dae2 !important;
+      color: #1e272e !important;
+    }
+    .priority-3 { 
+      border-left: 3px solid #3c40c6; 
+      background-color: #3c40c6 !important;
+      color: #f1f2f6 !important;
+    }
+    .priority-4 { 
+      border-left: 3px solid #0be881; 
+      background-color: #0be881 !important;
+      color: #2f3542 !important;
+    }
+    .priority-5 { 
+      border-left: 3px solid #f53b57; 
+      background-color: #f53b57 !important;
+      color: #f1f2f6 !important;
+    }
+
+    /* Dark Mode */
+    .dark .priority-0 { 
+      border-left-color: #1e293b;
+      background-color: #1e293b !important; 
+      color: #f1f2f6 !important; 
+    }
+    .dark .priority-1 { 
+      border-left-color: #334155;
+      background-color: #334155 !important; 
+      color: #f1f2f6 !important; 
+    }
+    .dark .priority-2 { 
+      border-left-color: #475569;
+      background-color: #475569 !important; 
+      color: #f1f2f6 !important; 
+    }
+    .dark .priority-3 { 
+      border-left-color: #0284c7;
+      background-color: #0284c7 !important; 
+      color: #f1f2f6 !important; 
+    }
+    .dark .priority-4 { 
+      border-left-color: #16a34a;
+      background-color: #16a34a !important; 
+      color: #f1f2f6 !important; 
+    }
+    .dark .priority-5 { 
+      border-left-color: #dc2626;
+      background-color: #dc2626 !important; 
+      color: #f1f2f6 !important; 
+    }
+    
+    /* Common styles for all priorities */
+    [class^="priority-"] {
+      height: 35px !important;
+      border-radius: 0.5px;
+      box-shadow: none;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      width: 100%;
+      margin-bottom: 4px; /* Retain margin from previous step */
+    }
+    
+    /* Subtle animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.2s ease-out forwards;
+    }
+    
+    /* Tooltip styles */
+    [data-tooltip] {
+      position: relative;
+    }
+    [data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: theme('colors.surface.800');
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    [data-tooltip]:hover::after {
+      opacity: 1;
+    }
+    
+    /* Custom selections */
+    .selected {
+      outline: 0.5px solid #dfe4ea !important;
+      position: relative;
+    }
+    
+    .selected::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #dfe4ea;
+    }
+
+    /* Tile Focus Style */
+    .tile-focus {
+        outline: 2px solid #d1d5db; /* light gray */
+        outline-offset: 2px;
+    }
+  </style>
+</head>
+<body class="bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-surface-100 font-sans min-h-screen flex">
+  <!-- Sidebar -->
+  <div class="w-64 bg-surface-100 dark:bg-surface-800 border-r border-surface-200 dark:border-surface-700 flex flex-col h-screen">
+    <div class="p-4 border-b border-surface-200 dark:border-surface-700">
+      <h1 class="text-xl font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        Focus Matrix
+      </h1>
+    </div>
+    
+    <div class="p-4 space-y-2">
+      <button class="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-200 dark:bg-surface-700 hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        Home
+      </button>
+      
+      <button class="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Focus View
+      </button>
+    </div>
+    
+    <div class="px-2 py-1 border-t border-surface-200 dark:border-surface-700">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-surface-500 dark:text-surface-400 px-2 py-1">Boards</h2>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto px-2 py-1 space-y-1" id="pages">
+      <!-- Boards will be rendered here -->
+    </div>
+    
+    <div class="p-2 border-t border-surface-200 dark:border-surface-700">
+      <button id="add-board-btn" class="w-full flex items-center justify-center gap-1 px-3 py-2 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-sm font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        Add Board
+      </button>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col h-screen overflow-hidden">
+    <!-- Toolbar -->
+    <div class="bg-white dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700 p-2 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <h2 class="text-lg font-semibold" id="current-board">Current Board</h2>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <button class="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors" data-tooltip="Search (Ctrl+K)">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+        
+        <button class="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors" data-tooltip="Dark Mode">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Workspace -->
+    <div class="flex-1 overflow-auto p-4" id="workspace">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Tiles will be rendered here -->
+      </div>
+    </div>
+    
+    <!-- Floating Add Button -->
+    <button id="common-add-btn" class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-primary-500 text-white flex items-center justify-center shadow-lg hover:bg-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50" data-tooltip="Add Item (Ctrl+I)">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+      </svg>
+    </button>
+    
+    <!-- Common Add Modal -->
+    <div id="common-add-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-200">
+      <div class="bg-white dark:bg-surface-800 rounded-lg shadow-xl w-full max-w-md p-6 transform transition-all duration-200 scale-95">
+        <h3 class="text-lg font-semibold mb-4">Add Item</h3>
+        <input id="common-add-input" type="text" class="w-full px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Item name (!priority @BoardInitialTileNum)">
+        <div class="mt-4 flex justify-end gap-2">
+          <button id="common-add-cancel" class="px-4 py-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors">Cancel</button>
+          <button id="common-add-confirm" class="px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors">Add Item</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize data structure
+    let state = {
+      currentBoard: 'Main Board',
+      boardOrder: ['Main Board'], // Added to manage board order
+      focusedTileIndex: null, // Index of the focused tile on the current board
+      boards: {
+        'Main Board': {
+          tiles: Array(8).fill().map((_, i) => ({
+            id: `tile-${i}`,
+            title: `Topic ${i + 1}`,
+            entries: [],
+            archivedEntries: [],
+            isBookmarked: false
+          }))
+        }
+      },
+      home: {
+        goals: [],
+        notes: []
+      }
+    };
+
+    // DOM Elements
+    const workspace = document.getElementById('workspace');
+    const pagesDiv = document.getElementById('pages');
+    const currentBoardTitle = document.getElementById('current-board');
+    const commonAddBtn = document.getElementById('common-add-btn');
+    const commonAddModal = document.getElementById('common-add-modal');
+    const commonAddInput = document.getElementById('common-add-input');
+    const commonAddCancelBtn = document.getElementById('common-add-cancel');
+    const commonAddConfirmBtn = document.getElementById('common-add-confirm');
+
+    // Initialize the app
+    function init() {
+      renderBoards();
+      renderWorkspace();
+      setupEventListeners();
+    }
+
+    // Render boards in sidebar
+    function renderBoards() {
+      pagesDiv.innerHTML = ''; // Clear previous buttons
+      
+      state.boardOrder.forEach(boardName => {
+        const isActive = boardName === state.currentBoard;
+        const boardData = state.boards[boardName]; // Get board data
+        
+        if (!boardData) {
+          console.error(`Board data not found for: ${boardName}`);
+          // Optionally remove the invalid name from boardOrder
+          // state.boardOrder = state.boardOrder.filter(b => b !== boardName);
+          return; // Skip rendering this button
+        }
+
+        const boardBtn = document.createElement('button');
+        boardBtn.className = `board-btn w-full text-left px-3 py-2 rounded-lg flex items-center justify-between transition-colors ${isActive ? 'bg-primary-100 dark:bg-surface-700 text-primary-600 dark:text-primary-400' : 'hover:bg-surface-200 dark:hover:bg-surface-700'}`;
+        boardBtn.dataset.boardName = boardName;
+        boardBtn.draggable = true;
+
+        const boardNameSpan = document.createElement('span');
+        boardNameSpan.className = 'truncate board-name-span';
+        boardNameSpan.textContent = boardName;
+        boardBtn.innerHTML = `
+          ${boardNameSpan.outerHTML}
+          ${isActive ? '<span class="w-2 h-2 rounded-full bg-primary-500 ml-2 flex-shrink-0"></span>' : ''}
+        `;
+
+        boardBtn.addEventListener('click', () => {
+          // Prevent switching if an input is active inside
+          if (boardBtn.querySelector('input')) return;
+          
+          // Clear tile focus when switching boards
+          if (state.currentBoard !== boardName) {
+             state.focusedTileIndex = null;
+          }
+
+          state.currentBoard = boardName;
+          renderBoards(); // Re-render to update active state
+          renderWorkspace();
+        });
+
+        // Drag and Drop listeners for reordering boards
+        boardBtn.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', boardName);
+          e.dataTransfer.effectAllowed = 'move';
+          // Optional: add dragging style
+          setTimeout(() => boardBtn.classList.add('opacity-50'), 0);
+        });
+
+        boardBtn.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          boardBtn.classList.add('board-drag-over'); // Add visual cue
+        });
+
+        boardBtn.addEventListener('dragleave', (e) => {
+          boardBtn.classList.remove('board-drag-over');
+        });
+
+        boardBtn.addEventListener('drop', (e) => {
+          e.preventDefault();
+          e.stopPropagation(); // Prevent potential parent drop handlers
+          boardBtn.classList.remove('board-drag-over');
+          const draggedBoardName = e.dataTransfer.getData('text/plain');
+          const targetBoardName = boardBtn.dataset.boardName;
+          
+          if (draggedBoardName && draggedBoardName !== targetBoardName) {
+            handleBoardDrop(draggedBoardName, targetBoardName);
+          }
+        });
+
+        boardBtn.addEventListener('dragend', (e) => {
+          // Remove dragging style
+          boardBtn.classList.remove('opacity-50');
+          // Clean up any stray drag-over styles
+          document.querySelectorAll('.board-drag-over').forEach(el => el.classList.remove('board-drag-over'));
+        });
+        
+        pagesDiv.appendChild(boardBtn);
+      });
+    }
+
+    // Handle board name editing
+    function editBoardName(oldName, buttonElement) {
+      const spanElement = buttonElement.querySelector('.board-name-span');
+      if (!spanElement || buttonElement.querySelector('input')) return; // Already editing
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = oldName;
+      input.className = 'w-full bg-transparent focus:outline-none focus:ring-1 focus:ring-primary-500 rounded px-1 -mx-1';
+      
+      const saveChanges = () => {
+        const newName = input.value.trim();
+        buttonElement.replaceChild(spanElement, input); // Restore span first
+
+        if (newName && newName !== oldName) {
+          if (state.boards[newName]) {
+            alert(`Board name "${newName}" already exists!`);
+            spanElement.textContent = oldName; // Restore old name text
+          } else {
+            // Update state
+            state.boards[newName] = state.boards[oldName];
+            delete state.boards[oldName];
+            
+            const index = state.boardOrder.indexOf(oldName);
+            if (index !== -1) {
+              state.boardOrder[index] = newName;
+            }
+            
+            if (state.currentBoard === oldName) {
+              state.currentBoard = newName;
+            }
+            spanElement.textContent = newName; // Update span text
+            buttonElement.dataset.boardName = newName; // Update data attribute
+            
+            // Re-render needed if current board changed, or for consistency
+            renderBoards();
+            renderWorkspace(); // Title might need update
+          }
+        } else {
+           spanElement.textContent = oldName; // Restore old name if empty or unchanged
+        }
+      };
+
+      input.addEventListener('blur', saveChanges);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          input.blur();
+        } else if (e.key === 'Escape') {
+          buttonElement.replaceChild(spanElement, input);
+          spanElement.textContent = oldName; // Restore original name
+        }
+      });
+
+      buttonElement.replaceChild(input, spanElement);
+      input.select();
+      input.focus();
+    }
+
+    // Handle board drop for reordering
+    function handleBoardDrop(draggedBoardName, targetBoardName) {
+      const draggedIndex = state.boardOrder.indexOf(draggedBoardName);
+      const targetIndex = state.boardOrder.indexOf(targetBoardName);
+
+      if (draggedIndex === -1 || targetIndex === -1) return;
+
+      // Remove from old position
+      state.boardOrder.splice(draggedIndex, 1);
+
+      // Insert at new position (adjust index if necessary)
+      const newTargetIndex = state.boardOrder.indexOf(targetBoardName);
+      state.boardOrder.splice(newTargetIndex, 0, draggedBoardName);
+
+      // Re-render the sidebar to show the new order
+      renderBoards();
+    }
+
+    // Sort entries by priority (highest to lowest)
+    function sortEntriesByPriority(entries) {
+      return [...entries].sort((a, b) => {
+        const priorityA = (a.match(/!+$/) || [''])[0].length;
+        const priorityB = (b.match(/!+$/) || [''])[0].length;
+        return priorityB - priorityA;
+      });
+    }
+
+    // Render workspace tiles
+    function renderWorkspace() {
+      currentBoardTitle.textContent = state.currentBoard;
+      const workspaceGrid = workspace.querySelector('.grid');
+      workspaceGrid.innerHTML = '';
+      
+      const currentBoard = state.boards[state.currentBoard];
+      
+      currentBoard.tiles.forEach((tile, tileIndex) => {
+        // Sort entries by priority
+        tile.entries = sortEntriesByPriority(tile.entries);
+        
+        const tileDiv = document.createElement('div');
+        tileDiv.className = 'bg-white dark:bg-surface-800 rounded-lg shadow-tile border border-surface-200 dark:border-surface-700 flex flex-col h-80';
+        tileDiv.dataset.tileIndex = tileIndex;
+
+        // Apply focus style if this tile is focused
+        if (state.focusedTileIndex === tileIndex) {
+          tileDiv.classList.add('tile-focus');
+        }
+
+        // Add click listener to set focus
+        tileDiv.addEventListener('click', (e) => {
+            // Prevent focus change when clicking on interactive elements within the tile
+            if (e.target.closest('input, button, [contenteditable], .board-name-span')) {
+                 return;
+            }
+            
+            // Only update if focus changed
+            if (state.focusedTileIndex !== tileIndex) {
+                state.focusedTileIndex = tileIndex;
+                // Re-render needed to update visual focus styles across all tiles
+                renderWorkspace(); 
+            }
+        });
+        
+        // Add drop target event listeners
+        tileDiv.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          tileDiv.classList.add('drag-over');
+        });
+        
+        tileDiv.addEventListener('dragleave', () => {
+          tileDiv.classList.remove('drag-over');
+        });
+        
+        tileDiv.addEventListener('drop', (e) => {
+          e.preventDefault();
+          tileDiv.classList.remove('drag-over');
+          
+          const sourceData = JSON.parse(e.dataTransfer.getData('text/plain'));
+          const sourceTileIndex = sourceData.tileIndex;
+          const targetTileIndex = tileIndex; // Use tileIndex from the drop target
+
+          // Clear selection styling immediately after drop starts processing
+          document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+          
+          if (sourceTileIndex !== targetTileIndex) {
+             // Use selectedIndices from data, handles both single and multi-select
+             const indicesToMove = sourceData.selectedIndices.sort((a, b) => b - a); // Desc sort crucial
+             const entriesToMove = [];
+
+             indicesToMove.forEach(index => {
+                // Check if entry exists at index before trying to access/splice
+                if (state.boards[state.currentBoard].tiles[sourceTileIndex].entries[index] !== undefined) {
+                    entriesToMove.push(state.boards[state.currentBoard].tiles[sourceTileIndex].entries[index]);
+                    state.boards[state.currentBoard].tiles[sourceTileIndex].entries.splice(index, 1);
+                }
+             });
+
+             // Add moved entries to the target tile (reverse to maintain original relative order)
+             state.boards[state.currentBoard].tiles[targetTileIndex].entries.push(...entriesToMove.reverse());
+            
+            renderWorkspace(); 
+          } else {
+            // Optional: Handle drop onto the same tile (e.g., reordering - not implemented here)
+          }
+        });
+        
+        // Tile header
+        const tileHeader = document.createElement('div');
+        // Use flex, items-center, justify-between for overall layout
+        tileHeader.className = 'relative p-3 border-b border-surface-200 dark:border-surface-700 flex items-center justify-between'; 
+        
+        // Container for Title and ID
+        const titleIdContainer = document.createElement('div');
+        titleIdContainer.className = 'flex items-center gap-2'; // Use gap for spacing
+
+        const tileTitle = document.createElement('h3');
+        tileTitle.className = 'font-medium cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-700 px-1 -mx-1 rounded';
+        tileTitle.textContent = tile.title;
+        tileTitle.addEventListener('click', () => editTileTitle(tileIndex, tileTitle));
+        
+        // Generate and Style Tile ID (remove absolute positioning)
+        const boardInitial = state.currentBoard.charAt(0).toUpperCase();
+        const tileId = `${boardInitial}${tileIndex + 1}`;
+        const tileIdSpan = document.createElement('span');
+        tileIdSpan.className = 'text-xs font-bold text-gray-400 dark:text-gray-500'; // Muted colors, adjusted positioning via flex gap
+        tileIdSpan.textContent = `ID:${tileId}`;
+        
+        // Append Title and ID to their container
+        titleIdContainer.appendChild(tileTitle);
+        titleIdContainer.appendChild(tileIdSpan);
+        
+        const bookmarkBtn = document.createElement('button');
+        bookmarkBtn.className = `p-1 rounded-full ${tile.isBookmarked ? 'text-yellow-500' : 'text-surface-400 hover:text-surface-600 dark:hover:text-surface-300'}`;
+        bookmarkBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg>';
+        bookmarkBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleBookmark(tileIndex);
+        });
+        
+        // Append Title/ID container and Bookmark button to header
+        tileHeader.appendChild(titleIdContainer);
+        tileHeader.appendChild(bookmarkBtn);
+        tileDiv.appendChild(tileHeader);
+        
+        // Tile entries
+        const entriesDiv = document.createElement('div');
+        entriesDiv.className = 'flex-1 overflow-y-auto p-3 space-y-1';
+        
+        // Render active entries
+        tile.entries.forEach((entry, entryIndex) => {
+          const priority = (entry.match(/!+$/) || [''])[0].length;
+          const entryText = entry.replace(/!+$/, '').trim();
+          
+          const entryDiv = document.createElement('div');
+          entryDiv.className = `rounded-lg px-3 py-1 cursor-pointer transition-colors priority-${priority}`;
+          entryDiv.textContent = entryText;
+          entryDiv.dataset.entryIndex = entryIndex;
+          
+          // Add drag and drop handlers
+          entryDiv.draggable = true;
+          entryDiv.addEventListener('dragstart', (e) => {
+            const selectedEntries = document.querySelectorAll('.selected');
+            let isDraggingSelected = entryDiv.classList.contains('selected');
+            let isMultiSelectDrag = selectedEntries.length > 0 && isDraggingSelected;
+
+            // If dragging an unselected item while others are selected, treat as single drag
+            if (selectedEntries.length > 0 && !isDraggingSelected) {
+              isMultiSelectDrag = false;
+              // Clear selection before dragging unselected item
+              selectedEntries.forEach(el => el.classList.remove('selected'));
+            }
+
+            const data = {
+              tileIndex,
+              entryIndex, // Index of the primary dragged item
+              isMultiSelect: isMultiSelectDrag,
+              selectedIndices: isMultiSelectDrag 
+                ? Array.from(selectedEntries).map(el => parseInt(el.dataset.entryIndex))
+                : [entryIndex] // If single drag, only this item's index
+            };
+            e.dataTransfer.setData('text/plain', JSON.stringify(data));
+            
+            // Apply opacity effect
+            if (isMultiSelectDrag) {
+              selectedEntries.forEach(el => el.classList.add('opacity-50'));
+            } else {
+              entryDiv.classList.add('opacity-50'); 
+            }
+            e.dataTransfer.effectAllowed = "move";
+          });
+          
+          entryDiv.addEventListener('dragend', (e) => {
+            // Remove opacity from all items that might have had it applied
+             document.querySelectorAll('[class^="priority-"]').forEach(el => el.classList.remove('opacity-50'));
+          });
+          
+          entryDiv.addEventListener('click', (e) => {
+            if (e.shiftKey || e.ctrlKey || e.metaKey) {
+              // Toggle selection for Shift/Ctrl/Cmd clicks
+              entryDiv.classList.toggle('selected');
+            } else {
+              // Single click without modifiers - select this, deselect others
+              const isSelected = entryDiv.classList.contains('selected');
+              // Clear previous selection
+              document.querySelectorAll('.selected').forEach(el => {
+                el.classList.remove('selected');
+              });
+              // Select the clicked item (or toggle if it was the only one selected)
+              // If it was already selected and was the *only* one selected, clicking again deselects it.
+              // Otherwise, clicking selects it.
+              if (!isSelected || document.querySelectorAll('.selected').length > 0) {
+                 entryDiv.classList.add('selected');
+              } 
+            }
+          });
+
+          // Add double-click listener for editing
+          entryDiv.addEventListener('dblclick', (e) => {
+            // Prevent interference with single click selection logic
+            e.stopPropagation(); 
+            // Call edit function
+            editEntry(tileIndex, entryIndex, entryDiv);
+          });
+
+          // Add context menu for archive and delete
+          entryDiv.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const menu = document.createElement('div');
+            menu.className = 'absolute bg-white dark:bg-surface-800 shadow-lg rounded-lg py-1 z-50';
+            menu.style.left = `${e.pageX}px`;
+            menu.style.top = `${e.pageY}px`;
+            
+            const archiveBtn = document.createElement('button');
+            archiveBtn.className = 'w-full text-left px-4 py-2 hover:bg-surface-100 dark:hover:bg-surface-700';
+            archiveBtn.textContent = 'Archive';
+            archiveBtn.addEventListener('click', () => {
+              archiveEntry(tileIndex, entryIndex);
+              menu.remove();
+            });
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'w-full text-left px-4 py-2 hover:bg-surface-100 dark:hover:bg-surface-700 text-red-500';
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.addEventListener('click', () => {
+              deleteEntry(tileIndex, entryIndex);
+              menu.remove();
+            });
+            
+            menu.appendChild(archiveBtn);
+            menu.appendChild(deleteBtn);
+            document.body.appendChild(menu);
+            
+            // Remove menu when clicking outside
+            const removeMenu = () => {
+              menu.remove();
+              document.removeEventListener('click', removeMenu);
+            };
+            setTimeout(() => document.addEventListener('click', removeMenu), 0);
+          });
+          
+          entriesDiv.appendChild(entryDiv);
+        });
+        
+        // Render archived entries
+        if (tile.archivedEntries.length > 0) {
+          const archivedDiv = document.createElement('div');
+          archivedDiv.className = 'mt-4 pt-2 border-t border-surface-200 dark:border-surface-700';
+          
+          const archivedTitle = document.createElement('div');
+          archivedTitle.className = 'text-xs font-medium text-surface-500 dark:text-surface-400 mb-2';
+          archivedTitle.textContent = 'Archived';
+          archivedDiv.appendChild(archivedTitle);
+          
+          tile.archivedEntries.forEach((entry, entryIndex) => {
+            const priority = (entry.match(/!+$/) || [''])[0].length;
+            const entryText = entry.replace(/!+$/, '').trim();
+            
+            const entryDiv = document.createElement('div');
+            entryDiv.className = `rounded-lg px-3 py-1 cursor-pointer transition-colors priority-${priority} opacity-60`;
+            entryDiv.textContent = entryText;
+            
+            entriesDiv.appendChild(entryDiv);
+          });
+          
+          entriesDiv.appendChild(archivedDiv);
+        }
+        
+        tileDiv.appendChild(entriesDiv);
+        
+        // Add entry input
+        const addEntryDiv = document.createElement('div');
+        addEntryDiv.className = 'p-2 border-t border-surface-200 dark:border-surface-700';
+        
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'flex gap-2';
+        
+        const input = document.createElement('input');
+        input.className = 'flex-1 px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 focus:outline-none focus:ring-2 focus:ring-primary-500';
+        input.placeholder = 'Add task (use ! for priority)';
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && input.value.trim()) {
+            addEntry(tileIndex, input);
+          }
+        });
+        
+        const addBtn = document.createElement('button');
+        addBtn.className = 'px-3 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors';
+        addBtn.textContent = '+';
+        addBtn.addEventListener('click', () => {
+          if (input.value.trim()) {
+            addEntry(tileIndex, input);
+          }
+        });
+        
+        inputGroup.appendChild(input);
+        inputGroup.appendChild(addBtn);
+        addEntryDiv.appendChild(inputGroup);
+        tileDiv.appendChild(addEntryDiv);
+        
+        workspaceGrid.appendChild(tileDiv);
+      });
+    }
+
+    // Add a new entry to a tile
+    function addEntry(tileIndex, inputElement) {
+      const entryText = inputElement.value.trim();
+      if (!entryText) return;
+      
+      state.boards[state.currentBoard].tiles[tileIndex].entries.push(entryText);
+      inputElement.value = '';
+      
+      // Render workspace but maintain focus on the input
+      const activeElementIndex = tileIndex;
+      renderWorkspace();
+      
+      // Restore focus to the same input field
+      const tileInputs = document.querySelectorAll(`[data-tile-index="${activeElementIndex}"] input`);
+      if (tileInputs.length > 0) {
+        tileInputs[0].focus();
+      }
+    }
+
+    // Edit a tile title
+    function editTileTitle(tileIndex, titleElement) {
+      const currentTitle = titleElement.textContent;
+      const input = document.createElement('input');
+      input.className = 'px-2 py-1 rounded border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 focus:outline-none focus:ring-2 focus:ring-primary-500';
+      input.value = currentTitle;
+      
+      input.addEventListener('blur', () => {
+        state.boards[state.currentBoard].tiles[tileIndex].title = input.value.trim() || currentTitle;
+        renderWorkspace();
+      });
+      
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          input.blur();
+        }
+      });
+      
+      titleElement.replaceWith(input);
+      input.focus();
+    }
+
+    // Edit an entry
+    function editEntry(tileIndex, entryIndex, entryDiv) {
+      const currentEntry = state.boards[state.currentBoard].tiles[tileIndex].entries[entryIndex];
+      const input = document.createElement('input');
+      input.className = 'w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 focus:outline-none focus:ring-2 focus:ring-primary-500';
+      input.value = currentEntry;
+      
+      input.addEventListener('blur', () => {
+        state.boards[state.currentBoard].tiles[tileIndex].entries[entryIndex] = input.value.trim() || currentEntry;
+        renderWorkspace();
+      });
+      
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          input.blur();
+        }
+      });
+      
+      entryDiv.replaceWith(input);
+      input.focus();
+    }
+
+    // Toggle bookmark on a tile
+    function toggleBookmark(tileIndex) {
+      const tile = state.boards[state.currentBoard].tiles[tileIndex];
+      tile.isBookmarked = !tile.isBookmarked;
+      renderWorkspace();
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Common Add Button & Modal Logic
+      commonAddBtn.addEventListener('click', openCommonAddModal);
+      commonAddCancelBtn.addEventListener('click', closeCommonAddModal);
+      commonAddConfirmBtn.addEventListener('click', handleCommonAddConfirm);
+      commonAddInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          handleCommonAddConfirm();
+        } else if (e.key === 'Escape') {
+          closeCommonAddModal();
+        }
+      });
+      commonAddModal.addEventListener('click', (e) => {
+        if (e.target === commonAddModal) {
+          closeCommonAddModal();
+        }
+      });
+
+      // Add Board button listener
+      const addBoardBtn = document.getElementById('add-board-btn');
+      if (addBoardBtn) {
+          addBoardBtn.addEventListener('click', addNewBoard);
+      }
+      
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        // Ctrl+I for Add Item modal
+        if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+          e.preventDefault();
+          openCommonAddModal();
+        }
+        
+        // Escape to close modals (keep this for consistency)
+        if (e.key === 'Escape') {
+          closeCommonAddModal();
+        }
+      });
+    }
+
+    function openCommonAddModal() {
+        commonAddModal.classList.remove('opacity-0', 'pointer-events-none');
+        commonAddModal.classList.add('opacity-100');
+        commonAddInput.value = ''; // Clear input
+        commonAddInput.focus();
+    }
+
+    function closeCommonAddModal() {
+        commonAddModal.classList.add('opacity-0', 'pointer-events-none');
+        commonAddModal.classList.remove('opacity-100');
+    }
+
+    function handleCommonAddConfirm() {
+      const inputValue = commonAddInput.value.trim();
+      if (!inputValue) return;
+
+      // Regex to parse: Task Name !priority @TargetID
+      const match = inputValue.match(/^(.*?)(?:\s*(!+))?(?:\s*(@\w\d+))?$/);
+      
+      if (!match) {
+        alert("Invalid format. Use: Task Name !priority @BoardInitialTileNum");
+        return;
+      }
+
+      let taskName = (match[1] || '').trim();
+      const priority = match[2] || ''; // e.g., "!!"
+      const targetIdRaw = match[3]; // e.g., "@W2"
+      let targetTileIndex = -1; // Initialize to -1 to indicate not set
+
+      if (targetIdRaw) {
+        // User specified a target ID
+        const targetId = targetIdRaw.substring(1); // Remove "@"
+        const boardInitial = state.currentBoard.charAt(0).toUpperCase();
+        const currentBoardTiles = state.boards[state.currentBoard].tiles;
+        let foundTile = false;
+
+        for (let i = 0; i < currentBoardTiles.length; i++) {
+            const currentTileId = `${boardInitial}${i + 1}`;
+            if (currentTileId.toUpperCase() === targetId.toUpperCase()) {
+                targetTileIndex = i;
+                foundTile = true;
+                break;
+            }
+        }
+
+        if (!foundTile) {
+          alert(`Tile ID "${targetId}" not found on this board.`);
+          return;
+        }
+      } else {
+         // No target ID specified - use focused tile or default to first
+         const currentBoardTiles = state.boards[state.currentBoard].tiles;
+         if (state.focusedTileIndex !== null && 
+             state.focusedTileIndex >= 0 && 
+             state.focusedTileIndex < currentBoardTiles.length) {
+             // Use the currently focused tile
+             targetTileIndex = state.focusedTileIndex;
+         } else {
+             // Default to the first tile (index 0) if no focus or focus is invalid
+             targetTileIndex = 0; 
+         }
+      }
+      
+      // Ensure targetTileIndex is valid before proceeding
+      if (targetTileIndex < 0 || targetTileIndex >= state.boards[state.currentBoard].tiles.length) {
+         alert(`Error: Calculated target tile index (${targetTileIndex}) is invalid.`);
+         return;
+      }
+
+      // Construct the final entry string (task name + priority)
+      const finalEntry = `${taskName}${priority}`;
+
+      // Add entry to the determined tile
+      if (state.boards[state.currentBoard].tiles[targetTileIndex]) {
+          state.boards[state.currentBoard].tiles[targetTileIndex].entries.push(finalEntry);
+          closeCommonAddModal();
+          renderWorkspace(); // Re-render to show the new item
+      } else {
+          alert(`Error: Target tile index ${targetTileIndex} is invalid.`);
+      }
+    }
+
+    // Add a new board
+    function addNewBoard() {
+      let boardCounter = 1;
+      let newBoardName = `New Board ${boardCounter}`;
+      // Ensure unique board name
+      while (state.boards[newBoardName]) {
+        boardCounter++;
+        newBoardName = `New Board ${boardCounter}`;
+      }
+
+      // Create new board data
+      state.boards[newBoardName] = {
+        tiles: Array(8).fill().map((_, i) => ({
+          id: `tile-${i}-${Date.now()}`, // Add timestamp for more uniqueness if needed
+          title: `Topic ${i + 1}`,
+          entries: [],
+          archivedEntries: [],
+          isBookmarked: false
+        }))
+      };
+      
+      // Add to order and set as current
+      state.boardOrder.push(newBoardName);
+      state.currentBoard = newBoardName;
+      state.focusedTileIndex = null; // Clear focus on new board
+      
+      renderBoards();
+      renderWorkspace();
+      
+      // Find the new board button and make it editable
+      // Use requestAnimationFrame to ensure the element exists after render
+      requestAnimationFrame(() => {
+        const newBoardBtn = pagesDiv.querySelector(`button[data-board-name="${newBoardName}"]`);
+        if (newBoardBtn) {
+          editBoardName(newBoardName, newBoardBtn);
+        }
+      });
+    }
+
+    // Archive an entry
+    function archiveEntry(tileIndex, entryIndex) {
+      const entry = state.boards[state.currentBoard].tiles[tileIndex].entries[entryIndex];
+      state.boards[state.currentBoard].tiles[tileIndex].entries.splice(entryIndex, 1);
+      state.boards[state.currentBoard].tiles[tileIndex].archivedEntries.push(entry);
+      renderWorkspace();
+    }
+
+    // Delete an entry
+    function deleteEntry(tileIndex, entryIndex) {
+      state.boards[state.currentBoard].tiles[tileIndex].entries.splice(entryIndex, 1);
+      renderWorkspace();
+    }
+
+    // Initialize the app
+    init();
+  </script>
+</body>
+</html>
