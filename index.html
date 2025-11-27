@@ -1,1021 +1,302 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌐 AI Automation & Web App Studio</title>
-    <style>
-        :root{
-            /* Palette — only black, white and shades of gray */
-            --black: #000000;
-            --white: #ffffff;
-
-            /* Grayscale scale (light → dark) */
-            --gray-50:  #f7f7f8;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b6b6b;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #0b0b0b;
-
-            /* Core colors (mapped to grayscale) */
-            --bg: var(--white);               /* page background */
-            --surface: var(--gray-50);        /* cards, panels, surfaces */
-            --muted: var(--gray-500);         /* secondary text / meta */
-            --text: var(--gray-900);          /* primary text */
-            --accent: var(--gray-900);        /* primary accent (use subtlety) */
-            --accent-2: var(--gray-700);      /* secondary accent / emphasis */
-            --glass: rgba(255,255,255,0.6);   /* translucent 'glass' effect */
-
-            /* Typography scale */
-            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui;
-            --step-0: 0.875rem; /* body small */
-            --step-1: 1rem;     /* body */
-            --step-2: 1.25rem;  /* subhead */
-            --step-3: 2.75rem;  /* hero small */
-            --step-4: 3.6rem;   /* hero large */
-
-            /* Spacing */
-            --space-xs: 8px;
-            --space-sm: 16px;
-            --space-md: 32px;
-            --space-lg: 64px;
-            --space-xl: 112px;
-
-            /* Radius & shadows */
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 20px;
-            --shadow-sm: 0 6px 18px rgba(11,11,11,0.06);
-            --shadow-lg: 0 20px 60px rgba(11,11,11,0.10);
-
-            /* Motion */
-            --ease-smooth: cubic-bezier(.2,.9,.2,1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-sans);
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* Subtle animated background pattern */
-        .bg-pattern {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-            background-image: 
-                radial-gradient(circle at 25% 25%, var(--gray-100) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, var(--gray-50) 0%, transparent 50%);
-            animation: subtleFloat 30s ease-in-out infinite;
-        }
-
-        @keyframes subtleFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        /* Grid overlay for tech aesthetic */
-        .grid-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-            background-image: 
-                linear-gradient(var(--gray-200) 1px, transparent 1px),
-                linear-gradient(90deg, var(--gray-200) 1px, transparent 1px);
-            background-size: 60px 60px;
-            opacity: 0.3;
-        }
-
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--space-xl) var(--space-md);
-            text-align: center;
-            position: relative;
-        }
-
-        .hero-content {
-            max-width: 800px;
-            animation: slideUp 1s var(--ease-smooth);
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .hero h1 {
-            font-size: var(--step-4);
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: var(--space-md);
-            animation: fadeIn 1s var(--ease-smooth) 0.3s both;
-        }
-
-        .hero-description {
-            font-size: var(--step-2);
-            color: var(--muted);
-            margin-bottom: var(--space-lg);
-            font-weight: 400;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            animation: fadeIn 1s var(--ease-smooth) 0.6s both;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .hero-cta {
-            animation: fadeIn 1s var(--ease-smooth) 0.9s both;
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-block;
-            padding: 16px 32px;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s var(--ease-smooth);
-            font-size: var(--step-1);
-            border: 2px solid var(--accent);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: var(--white);
-        }
-
-        .btn-primary:hover {
-            background: var(--gray-800);
-            border-color: var(--gray-800);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--accent);
-            border: 2px solid var(--gray-300);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--accent);
-            background: var(--surface);
-        }
-
-        /* Section styling */
-        .section {
-            padding: var(--space-xl) var(--space-md);
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-alt {
-            background: var(--surface);
-            padding: var(--space-xl) 0;
-        }
-
-        .section-heading {
-            text-align: center;
-            margin-bottom: var(--space-lg);
-        }
-
-        .section-heading h2 {
-            font-size: var(--step-3);
-            font-weight: 800;
-            margin-bottom: var(--space-sm);
-        }
-
-        .section-heading p {
-            color: var(--muted);
-            font-size: var(--step-1);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Deliverables grid */
-        .deliverables-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: var(--space-lg);
-            margin-top: var(--space-lg);
-        }
-
-        .deliverable-card {
-            padding: var(--space-lg);
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            transition: all 0.3s var(--ease-smooth);
-            border: 1px solid var(--gray-200);
-            position: relative;
-        }
-
-        .deliverable-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--gray-900), var(--gray-700));
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            transform: scaleX(0);
-            transition: transform 0.3s var(--ease-smooth);
-        }
-
-        .deliverable-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .deliverable-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .deliverable-card h3 {
-            font-size: var(--step-2);
-            font-weight: 700;
-            margin-bottom: var(--space-sm);
-            color: var(--text);
-        }
-
-        .deliverable-card p {
-            color: var(--muted);
-            line-height: 1.6;
-        }
-
-        /* Why section */
-        .why-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--space-md);
-            margin-top: var(--space-lg);
-        }
-
-        .why-item {
-            padding: var(--space-md);
-            text-align: center;
-        }
-
-        .why-item h3 {
-            font-size: var(--step-2);
-            font-weight: 700;
-            margin-bottom: var(--space-sm);
-            color: var(--text);
-        }
-
-        .why-item p {
-            color: var(--muted);
-        }
-
-        /* Process timeline */
-        .process-timeline {
-            position: relative;
-            padding: var(--space-lg) 0;
-        }
-
-        .process-step {
-            display: flex;
-            gap: var(--space-md);
-            margin-bottom: var(--space-lg);
-            position: relative;
-        }
-
-        .process-step::before {
-            content: '';
-            position: absolute;
-            left: 31px;
-            top: 60px;
-            width: 2px;
-            height: calc(100% + var(--space-lg));
-            background: var(--gray-200);
-            z-index: -1;
-        }
-
-        .process-step:last-child::before {
-            display: none;
-        }
-
-        .step-number {
-            min-width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: var(--accent);
-            color: var(--white);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: var(--step-1);
-            flex-shrink: 0;
-        }
-
-        .step-content h3 {
-            font-size: var(--step-2);
-            font-weight: 700;
-            margin-bottom: var(--space-xs);
-        }
-
-        .step-content p {
-            color: var(--muted);
-            margin-bottom: var(--space-sm);
-        }
-
-        .step-deliverable {
-            background: var(--surface);
-            padding: var(--space-sm);
-            border-radius: var(--radius-sm);
-            font-size: var(--step-0);
-            font-weight: 600;
-            color: var(--accent-2);
-        }
-
-        /* Pilot pack highlight */
-        .pilot-pack {
-            background: linear-gradient(135deg, var(--gray-900), var(--gray-800));
-            color: var(--white);
-            padding: var(--space-xl);
-            border-radius: var(--radius-lg);
-            margin: var(--space-xl) 0;
-            text-align: center;
-        }
-
-        .pilot-pack h2 {
-            font-size: var(--step-3);
-            font-weight: 800;
-            margin-bottom: var(--space-md);
-        }
-
-        .pilot-pack p {
-            opacity: 0.9;
-            margin-bottom: var(--space-md);
-            font-size: var(--step-1);
-        }
-
-        .pilot-pack .btn-primary {
-            background: var(--white);
-            color: var(--gray-900);
-            border-color: var(--white);
-        }
-
-        .pilot-pack .btn-primary:hover {
-            background: var(--gray-100);
-        }
-
-        /* Outcomes grid */
-        .outcomes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: var(--space-md);
-            margin-top: var(--space-lg);
-        }
-
-        .outcome-item {
-            text-align: center;
-            padding: var(--space-md);
-        }
-
-        .outcome-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: var(--surface);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto var(--space-sm);
-            font-size: 24px;
-            color: var(--accent);
-        }
-
-        .outcome-item h3 {
-            font-size: var(--step-1);
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        /* Scroll animations */
-        .animate-on-scroll {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s var(--ease-smooth);
-        }
-
-        .animate-on-scroll.animated {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            :root {
-                --step-4: 2.5rem;
-                --step-3: 2rem;
-                --space-xl: 64px;
-                --space-lg: 48px;
-            }
-            
-            .hero {
-                padding: var(--space-lg) var(--space-md);
-            }
-            
-            .deliverables-grid {
-                grid-template-columns: 1fr;
-                gap: var(--space-md);
-            }
-            
-            .portfolio-grid {
-                grid-template-columns: 1fr;
-                gap: var(--space-md);
-            }
-            
-            .portfolio-card {
-                min-width: 280px;
-            }
-            
-            .portfolio-thumbnail {
-                height: 160px;
-            }
-            
-            .portfolio-links {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .portfolio-link {
-                align-self: flex-start;
-            }
-            
-            .process-step {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .process-step::before {
-                display: none;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .portfolio-grid {
-                grid-template-columns: 1fr;
-                gap: var(--space-sm);
-            }
-            
-            .portfolio-content {
-                padding: var(--space-sm);
-            }
-            
-            .portfolio-title {
-                font-size: var(--step-1);
-            }
-            
-            .portfolio-links {
-                gap: 4px;
-            }
-            
-            .portfolio-link {
-                font-size: 10px;
-                padding: 3px 6px;
-            }
-
-            .portfolio-category-section {
-                margin-bottom: var(--space-lg);
-            }
-
-            .portfolio-section-title {
-                font-size: var(--step-1);
-                margin-bottom: var(--space-sm);
-            }
-        }
-
-        /* Portfolio Section */
-        .portfolio-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: var(--space-lg);
-            margin-top: var(--space-lg);
-        }
-
-        .portfolio-card {
-            background: var(--white);
-            border-radius: 5px;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.4s var(--ease-smooth);
-            border: 1px solid var(--gray-200);
-            position: relative;
-            cursor: pointer;
-        }
-
-        .portfolio-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(0,0,0,0.05), rgba(0,0,0,0.1));
-            opacity: 0;
-            transition: opacity 0.3s var(--ease-smooth);
-            z-index: 1;
-        }
-
-        .portfolio-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--gray-300);
-        }
-
-        .portfolio-card:hover::before {
-            opacity: 1;
-        }
-
-        .portfolio-thumbnail {
-            width: 100%;
-            height: 200px;
-            background: var(--gray-100);
-            position: relative;
-            overflow: hidden;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .portfolio-thumbnail::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3));
-            opacity: 0;
-            transition: all 0.3s var(--ease-smooth);
-        }
-
-        .portfolio-card:hover .portfolio-thumbnail::after {
-            opacity: 1;
-        }
-
-        /* Placeholder icon for blank thumbnails */
-        .portfolio-thumbnail:not([style*="background-image"])::before {
-            content: '🌐';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem;
-            opacity: 0.3;
-            z-index: 1;
-        }
-
-        .portfolio-content {
-            padding: var(--space-md);
-            position: relative;
-            z-index: 2;
-        }
-
-        .portfolio-category {
-            font-size: var(--step-0);
-            color: var(--accent);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: var(--space-xs);
-        }
-
-        .portfolio-title {
-            font-size: var(--step-2);
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: var(--space-xs);
-            line-height: 1.3;
-        }
-
-        .portfolio-tagline {
-            font-size: var(--step-0);
-            color: var(--muted);
-            line-height: 1.4;
-            margin-bottom: var(--space-sm);
-        }
-
-        .portfolio-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-xs);
-        }
-
-        .portfolio-link {
-            display: inline-block;
-            padding: 4px 8px;
-            background: var(--surface);
-            border-radius: 4px;
-            font-size: 11px;
-            color: var(--accent-2);
-            text-decoration: none;
-            transition: all 0.2s var(--ease-smooth);
-            border: 1px solid transparent;
-        }
-
-        .portfolio-link:hover {
-            background: var(--accent);
-            color: var(--white);
-            border-color: var(--accent);
-        }
-
-        .portfolio-link.main-link {
-            background: var(--accent);
-            color: var(--white);
-            font-weight: 600;
-        }
-
-        .portfolio-link.main-link:hover {
-            background: var(--gray-800);
-        }
-
-        /* Portfolio Category Sections */
-        .portfolio-category-section {
-            margin-bottom: var(--space-xl);
-        }
-
-        .portfolio-section-title {
-            font-size: var(--step-2);
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: var(--space-md);
-            padding-bottom: var(--space-xs);
-            border-bottom: 2px solid var(--gray-200);
-            position: relative;
-        }
-
-        .portfolio-section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 60px;
-            height: 2px;
-            background: var(--accent);
-        }
-
-        /* Subtle micro-animations */
-        .card-hover {
-            transition: all 0.2s var(--ease-smooth);
-        }
-
-        .card-hover:hover {
-            transform: translateY(-2px);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AAAI.world | Premium Social Boosting Service for A List Creators, Artists & Influencers</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #FFD700;
+      --platinum: #E5E4E2;
+      --jet-black: #0A0A0A;
+      --neon-blue: #00F5FF;
+      --neon-pink: #FF10F0;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--jet-black);
+      color: white;
+    }
+    .hero-gradient {
+      background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(10,10,10,0.85) 100%);
+    }
+    .hero-image {
+      background-image: url('https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+    .gold-text { 
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+      background: linear-gradient(90deg, var(--gold) 0%, var(--neon-pink) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stat-box {
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    .stat-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 245, 255, 0.2);
+    }
+    .cta-button {
+      background: linear-gradient(90deg, var(--gold) 0%, var(--neon-blue) 100%);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 245, 255, 0.4);
+    }
+    .cta-button::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255,255,255,0.1);
+      transform: rotate(30deg);
+      transition: all 0.3s ease;
+    }
+    .cta-button:hover::after {
+      left: 100%;
+    }
+    .client-logo {
+      filter: brightness(0) invert(1);
+      opacity: 0.7;
+      transition: all 0.3s ease;
+    }
+    .client-logo:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    .neon-glow {
+      text-shadow: 0 0 8px rgba(0, 245, 255, 0.5);
+    }
+    .typewriter {
+      border-right: 3px solid var(--neon-blue);
+      white-space: nowrap;
+      overflow: hidden;
+      display: inline-block;
+      animation: blink-caret 0.75s step-end infinite;
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent }
+      50% { border-color: var(--neon-blue); }
+    }
+  </style>
 </head>
-<body>
-    <div class="bg-pattern"></div>
-    <div class="grid-overlay"></div>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>🌐 AI Automation & Web App Studio</h1>
-            <p class="hero-description">
-                We design and deliver plug-and-play AI services that save hours, improve customer experience, and scale without extra headcount.
-            </p>
-            <div class="hero-cta">
-                <a href="#" class="btn btn-primary">Get Started</a>
-            </div>
+<body class="min-h-screen flex items-center justify-center">
+  <div class="hero-gradient w-full min-h-screen flex items-center justify-center">
+    <div class="hero-image absolute inset-0 w-full h-full opacity-30"></div>
+    
+    <div class="relative z-10 container mx-auto px-6 py-20 max-w-6xl">
+      <div class="text-center mb-4">
+        <span class="text-xs uppercase tracking-widest text-gray-400">Elite Viral Growth Services</span>
+      </div>
+      
+      <h1 class="text-5xl md:text-7xl font-black text-center leading-tight mb-6">
+        <span class="gold-text">Premium Boosting</span> Service for <span class="gold-text">A-List Creators</span> 
+      </h1>
+      
+      <h2 class="text-2xl md:text-3xl text-center max-w-3xl mx-auto text-gray-300 mb-4 neon-glow">
+       10B+ views. 50M+ followers. 100M+ streams—delivered discreetly for the world's top creators
+      </h2>
+      
+      <p class="text-xl md:text-2xl text-center max-w-3xl mx-auto text-gray-300 mb-12">
+       Trusted By Top Influncers, Artists & Creators.
+      </p>
+      
+      
+      
+      <!-- Platform Logos Section -->
+      <div class="text-center mb-8">
+        <h3 class="text-2xl md:text-3xl font-bold mb-6 neon-glow">We help you grow everywhere</h3><br>
+        <div class="platform-grid grid grid-cols-7 gap-4 mb-8">
+          <!-- First row of 7 logos will be inserted here by JavaScript -->
         </div>
-    </section>
-
-    <!-- Portfolio Section -->
-    <section class="section">
-        <div class="section-heading animate-on-scroll">
-            <h2>Portfolio</h2>
-            <p>Showcasing our AI-powered solutions across different industries</p>
+        <div class="platform-grid grid grid-cols-7 gap-4 mb-12">
+          <!-- Second row of 7 logos will be inserted here by JavaScript -->
         </div>
+
         
-        <div class="portfolio-grid">
-            <!-- GPT TaskMaster -->
-            <div class="portfolio-card animate-on-scroll">
-                <div class="portfolio-thumbnail" style="background-image: url('pics/GPTTaskMaster-thumbnail.png')"></div>
-                <div class="portfolio-content">
-                    <div class="portfolio-category">Automation</div>
-                    <h3 class="portfolio-title">GPT TaskMaster</h3>
-                    <p class="portfolio-tagline">Cutom GPT based task automation and workflow optimization</p>
-                    <div class="portfolio-links">
-                        <a href="https://gpttaskmaster.com/" target="_blank" class="portfolio-link main-link">Visit Demo</a>
-                    </div>
-                </div>
-            </div>
+      </div>
 
-            <!-- FabAI -->
-            <div class="portfolio-card animate-on-scroll">
-                <div class="portfolio-thumbnail" style="background-image: url('pics/FabBot-thumbnail.png')"></div>
-                <div class="portfolio-content">
-                    <div class="portfolio-category">Design Generator</div>
-                    <h3 class="portfolio-title">FabAI</h3>
-                    <p class="portfolio-tagline">Best Free alternative to Lovable, Bolt & EasySite</p>
-                    <div class="portfolio-links">
-                        <a href="https://fabai.dev/" target="_blank" class="portfolio-link main-link">Visit Demo</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- MagicAI -->
-            <div class="portfolio-card animate-on-scroll">
-                <div class="portfolio-thumbnail" style="background-image: url('pics/MagicAI-thumbnail.png')"></div>
-                <div class="portfolio-content">
-                    <div class="portfolio-category">Automation</div>
-                    <h3 class="portfolio-title">MagicAI</h3>
-                    <p class="portfolio-tagline">Fastest way to Build AI Apps and ChatBots</p>
-                    <div class="portfolio-links">
-                        <a href="https://www.fabai.dev/magicai/" target="_blank" class="portfolio-link main-link">Visit Demo</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- WealthBox AI -->
-            <div class="portfolio-card animate-on-scroll">
-                <div class="portfolio-thumbnail" style="background-image: url('pics/WealthBox-thumbnail.png')"></div>
-                <div class="portfolio-content">
-                    <div class="portfolio-category">Finance</div>
-                    <h3 class="portfolio-title">WealthBox AI</h3>
-                    <p class="portfolio-tagline">AI-powered Financial Plan Generator</p>
-                    <div class="portfolio-links">
-                        <a href="https://wealthboxai.com/" target="_blank" class="portfolio-link main-link">Visit Demo</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ChartChat AI -->
-            <div class="portfolio-card animate-on-scroll">
-                <div class="portfolio-thumbnail" style="background-image: url('pics/ChartChat-thumbnail.png')"></div>
-                <div class="portfolio-content">
-                    <div class="portfolio-category">Trading</div>
-                    <h3 class="portfolio-title">ChartChat AI</h3>
-                    <p class="portfolio-tagline">AI-powered trading chart analysis SAAS</p>
-                    <div class="portfolio-links">
-                        <a href="https://chartchatai.com/" target="_blank" class="portfolio-link main-link">Visit Demo</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- MultiChart Online -->
-            <div class="portfolio-card animate-on-scroll">
-                <div class="portfolio-thumbnail" style="background-image: url('pics/MultiChart-thumbnail.png')"></div>
-                <div class="portfolio-content">
-                    <div class="portfolio-category">Trading</div>
-                    <h3 class="portfolio-title">MultiChart Online</h3>
-                    <p class="portfolio-tagline">AI Chart Builder & Screener for technical traders</p>
-                    <div class="portfolio-links">
-                        <a href="https://multichart.online/" target="_blank" class="portfolio-link main-link">Visit Demo</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Diet Planner Pro -->
-            <div class="portfolio-card animate-on-scroll">
-                <div class="portfolio-thumbnail" style="background-image: url('pics/Dietplanner-thumbnail.png')"></div>
-                <div class="portfolio-content">
-                    <div class="portfolio-category">Health</div>
-                    <h3 class="portfolio-title">Diet Planner Pro</h3>
-                    <p class="portfolio-tagline">AI-powered nutrition planning platform</p>
-                    <div class="portfolio-links">
-                        <a href="https://dietplanner.pro/" target="_blank" class="portfolio-link main-link">Visit Demo</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Podcast Notes Shop -->
-            <div class="portfolio-card animate-on-scroll">
-                <div class="portfolio-thumbnail" style="background-image: url('pics/Smartworkouts-thumbnail.png')"></div>
-                <div class="portfolio-content">
-                    <div class="portfolio-category">Health</div>
-                    <h3 class="portfolio-title">Smart Workouts App</h3>
-                    <p class="portfolio-tagline">Advanced Workout Video Search Engine</p>
-                    <div class="portfolio-links">
-                        <a href="http://smartworkouts.app" target="_blank" class="portfolio-link main-link">Visit Demo</a>
-                    </div>
-                </div>
-            </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        <div class="stat-box p-8 rounded-xl">
+          <div class="text-4xl font-bold mb-2 neon-glow">10B+</div>
+          <div class="text-gray-300">Organic Views</div>
         </div>
-    </section>
-
-    <!-- Our AI Services -->
-    <section class="section">
-        <div class="section-heading animate-on-scroll">
-            <h2>Our AI Services</h2>
-            <p>Plug-and-play AI solutions that deliver immediate value to your business operations.</p>
+        <div class="stat-box p-8 rounded-xl">
+          <div class="text-4xl font-bold mb-2 neon-glow">50M+</div>
+          <div class="text-gray-300">HQ Followers</div>
         </div>
-        
-        <div class="deliverables-grid">
-            <div class="deliverable-card animate-on-scroll">
-                <h3>1. AI Support Concierge</h3>
-                <p><strong>Your 24/7 customer rep.</strong><br><br>
-                A chatbot trained on your FAQs, help docs, and policies that instantly answers 80–90% of customer queries, escalating only the complex ones.<br><br>
-                <strong>Deliverables:</strong> Custom chatbot (web + WhatsApp/Slack), training on knowledge base, reporting dashboard.<br>
-                <strong>Timeline:</strong> 2–3 weeks<br>
-                <strong>Pricing:</strong> $3,000 setup + $500/month hosting & updates</p>
-            </div>
-            
-            <div class="deliverable-card animate-on-scroll">
-                <h3>2. Lead Capture & Qualification Bot</h3>
-                <p><strong>Turn site visitors into warm leads.</strong><br><br>
-                Conversational lead bot that collects info, qualifies, and sends to your CRM. Engages visitors, asks smart questions, routes hot leads to sales instantly.<br><br>
-                <strong>Deliverables:</strong> Website chatbot, CRM integration (HubSpot, Pipedrive, etc.), weekly lead report.<br>
-                <strong>Timeline:</strong> 1–2 weeks<br>
-                <strong>Pricing:</strong> $2,500 setup + $400/month maintenance</p>
-            </div>
-            
-            <div class="deliverable-card animate-on-scroll">
-                <h3>3. Meeting & Call AI Assistant</h3>
-                <p><strong>Never miss a detail again.</strong><br><br>
-                AI that joins Zoom/Meet calls (or works on recordings). Summarizes meetings, extracts action items, and updates your CRM/project tool.<br><br>
-                <strong>Deliverables:</strong> Automated note-taker, action-item digest, direct tool integration.<br>
-                <strong>Timeline:</strong> 2–4 weeks<br>
-                <strong>Pricing:</strong> $4,000 setup + $600/month</p>
-            </div>
-            
-            <div class="deliverable-card animate-on-scroll">
-                <h3>4. AI Document Processor</h3>
-                <p><strong>From paperwork to structured data.</strong><br><br>
-                AI that reads invoices, forms, contracts, and extracts key fields. Eliminates manual data entry, routes to billing or CRM automatically.<br><br>
-                <strong>Deliverables:</strong> Document intake flow, structured outputs, integrations to finance tools.<br>
-                <strong>Timeline:</strong> 3–4 weeks<br>
-                <strong>Pricing:</strong> $5,000 setup + volume-based monthly</p>
-            </div>
-            
-            <div class="deliverable-card animate-on-scroll">
-                <h3>5. Sales Outreach Copilot</h3>
-                <p><strong>Personalized emails, on autopilot.</strong><br><br>
-                AI that drafts and sequences sales emails tailored to each prospect. Pulls context from LinkedIn/CRM, writes warm outreach, and nudges follow-ups.<br><br>
-                <strong>Deliverables:</strong> Custom prompt library, outreach workflow, CRM sync.<br>
-                <strong>Timeline:</strong> 2 weeks<br>
-                <strong>Pricing:</strong> $3,500 setup + $500/month</p>
-            </div>
-            
-            <div class="deliverable-card animate-on-scroll">
-                <h3>6. Team Knowledge Assistant</h3>
-                <p><strong>Your company's brain, in chat form.</strong><br><br>
-                Internal chatbot for employees to query SOPs, policies, and knowledge bases. Reduces time searching docs and asking managers repetitive questions.<br><br>
-                <strong>Deliverables:</strong> Internal chatbot (Slack/Teams), knowledge uploads, permissions.<br>
-                <strong>Timeline:</strong> 2–3 weeks<br>
-                <strong>Pricing:</strong> $4,000 setup + $600/month</p>
-            </div>
+        <div class="stat-box p-8 rounded-xl">
+          <div class="text-4xl font-bold mb-2 neon-glow">100M+</div>
+          <div class="text-gray-300">Streams Boosted</div>
         </div>
-    </section>
+      </div>
+      
+      <!-- New Features Section -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        <div class="stat-box p-8 rounded-xl">
+          <h3 class="text-2xl font-bold mb-4 neon-glow">Profile Defined Accounts</h3>
+          <p class="text-gray-300">Zero Bot use. Authentic engagement from real, targeted, high quality active accounts only.</p>
+        </div>
+        <div class="stat-box p-8 rounded-xl">
+          <h3 class="text-2xl font-bold mb-4 neon-glow">Shadowban-Proof Strategies</h3>
+          <p class="text-gray-300">We only use platform-compliant techniques that avoid detection and banning. </p>
+        </div>
+        <div class="stat-box p-8 rounded-xl">
+          <h3 class="text-2xl font-bold mb-4 neon-glow">Carefully Handled by Humans & AI</h3>
+          <p class="text-gray-300">Your campaigns are managed, monitored & optimized continuously for best results.</p>
+        </div>
+      </div>
+      
+      <div class="text-center mb-16">
+        <button class="cta-button text-black font-bold py-4 px-12 rounded-full text-lg mx-auto">
+          Request VIP Access
+        </button>
+      </div>
+      
+      <div class="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-80">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" alt="Spotify" class="client-logo h-8">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Instagram_logo_2022.svg" alt="Instagram" class="client-logo h-8">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube" class="client-logo h-8">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/TikTok_logo.svg" alt="TikTok" class="client-logo h-8">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Twitch_Glitch_Logo_Purple.svg" alt="Twitch" class="client-logo h-8">
+      </div>
 
-    <!-- How We Build It -->
-    <div class="section-alt">
-        <section class="section">
-            <div class="section-heading animate-on-scroll">
-                <h2>👉 This is a plug-and-play agency offering</h2>
-                <p>You can deliver it with no-code tools</p>
-            </div>
-            
-            <div class="why-grid">
-                <div class="why-item animate-on-scroll">
-                    <h3>Chatbots</h3>
-                    <p>Landbot, Tidio, Botpress Cloud, ManyChat, Zapier Chatbot</p>
-                </div>
-                
-                <div class="why-item animate-on-scroll">
-                    <h3>Automations</h3>
-                    <p>Zapier, Make, Airtable, Pipedream</p>
-                </div>
-                
-                <div class="why-item animate-on-scroll">
-                    <h3>LLMs</h3>
-                    <p>ChatGPT, Claude, OpenRouter</p>
-                </div>
-                
-                <div class="why-item animate-on-scroll">
-                    <h3>Integrations</h3>
-                    <p>HubSpot, Salesforce, Pipedrive, Notion, Google Workspace</p>
-                </div>
-            </div>
-        </section>
+      
     </div>
+  </div>
 
+  
 
-    <!-- Service Packaging -->
-    <section class="section">
-        <div class="pilot-pack animate-on-scroll">
-            <h2>📦 Service Packaging</h2>
-            <p><strong>Pilot Pack (Fixed-Price):</strong> Start with one service, fully delivered + ROI snapshot.</p>
-            <p><strong>Growth Bundle:</strong> Any 3 services together at a 15% discount.</p>
-            <p><strong>Managed AI Ops:</strong> Monthly retainer — we maintain, retrain, and improve your AI systems continuously.</p>
-            <a href="#" class="btn btn-primary">Get Your Quote</a>
-        </div>
-    </section>
+  <style>
+  .platform-logo {
+    opacity: 0.8;
+    transition: all 0.5s ease;
+    max-width: 80px;
+    max-height: 80px;
+    margin: 0 auto;
+    animation: float 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(0, 245, 255, 0.3));
+  }
+  .platform-logo:hover {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px rgba(0, 245, 255, 0.5));
+    transform: scale(1.1);
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+</style>
 
-    <!-- Typical Results -->
-    <section class="section">
-        <div class="section-heading animate-on-scroll">
-            <h2>⚡ Typical Results Clients See</h2>
-        </div>
-        
-        <div class="outcomes-grid">
-            <div class="outcome-item animate-on-scroll">
-                <div class="outcome-icon">🎯</div>
-                <h3>40–70% fewer repetitive tickets handled by humans</h3>
-            </div>
-            
-            <div class="outcome-item animate-on-scroll">
-                <div class="outcome-icon">⚡</div>
-                <h3>3–5x faster lead response time</h3>
-            </div>
-            
-            <div class="outcome-item animate-on-scroll">
-                <div class="outcome-icon">⏰</div>
-                <h3>20+ hours saved per manager each month in reporting and notes</h3>
-            </div>
-            
-            <div class="outcome-item animate-on-scroll">
-                <div class="outcome-icon">🎯</div>
-                <h3>90% accuracy in document/data extraction</h3>
-            </div>
-        </div>
-    </section>
+<script>
+  // Platform logos with URLs
+  const platforms = [
+    { name: 'TikTok', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tiktok_icon.svg/2048px-Tiktok_icon.svg.png' },
+    { name: 'Facebook', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png' },
+    { name: 'YouTube', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/2560px-YouTube_full-color_icon_%282017%29.svg.png' },
+    { name: 'Instagram', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/1200px-Instagram_logo_2016.svg.png' },
+    { name: 'SnapChat', url: 'https://upload.wikimedia.org/wikipedia/it/thumb/c/c4/Snapchat_logo.svg/450px-Snapchat_logo.svg.png?20170512133658' },
+    { name: 'X', url: 'https://upload.wikimedia.org/wikipedia/commons/9/95/Twitter_new_X_logo.png' },
+    { name: 'Pinterest', url: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png' },
+    { name: 'IMDB', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/IMDB_Logo_2016.svg/863px-IMDB_Logo_2016.svg.png' },
+    { name: 'Spotify', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/1982px-Spotify_icon.svg.png' },
+    { name: 'Apple Music', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Apple_Music_icon.svg/2048px-Apple_Music_icon.svg.png' },
+    { name: 'Soundcloud', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Antu_soundcloud.svg/1200px-Antu_soundcloud.svg.png' },
+    { name: 'Twitch', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Twitch_Glitch_Logo_Purple.svg/1756px-Twitch_Glitch_Logo_Purple.svg.png' },
+    { name: 'Kick', url: 'https://i.pinimg.com/736x/f6/4f/56/f64f5611aabc03a17fa0a1ddfc7d0490.jpg' },
+    { name: 'OnlyFans', url: 'https://upload.wikimedia.org/wikipedia/en/archive/c/cc/20250726202534%21OnlyFans_logo.svg' }
+  ];
 
-    <script>
-        // Smooth scroll animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+  // Display logos in defined order, split into two rows
+  function displayPlatformLogos() {
+    const firstRow = document.querySelectorAll('.platform-grid')[0];
+    const secondRow = document.querySelectorAll('.platform-grid')[1];
+    
+    platforms.forEach((platform, index) => {
+      const logo = document.createElement('img');
+      logo.src = platform.url;
+      logo.alt = platform.name;
+      logo.className = 'platform-logo';
+      logo.title = platform.name;
+      
+      if (index < 7) {
+        firstRow.appendChild(logo);
+      } else {
+        secondRow.appendChild(logo);
+      }
+    });
+  }
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animated');
-                }
-            });
-        }, observerOptions);
+  // Typewriter effect
+  const words = ["Influencers", "Artists", "Executives", "Athletes", "Celebrities"];
+    let wordIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    const typewriterElement = document.querySelector('.typewriter');
+    
+    function typeWriter() {
+      const currentWord = words[wordIndex];
+      
+      if (isDeleting) {
+        typewriterElement.textContent = currentWord.substring(0, charIndex - 1);
+        charIndex--;
+      } else {
+        typewriterElement.textContent = currentWord.substring(0, charIndex + 1);
+        charIndex++;
+      }
+      
+      if (!isDeleting && charIndex === currentWord.length) {
+        isDeleting = true;
+        setTimeout(typeWriter, 2000);
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        wordIndex = (wordIndex + 1) % words.length;
+        setTimeout(typeWriter, 500);
+      } else {
+        setTimeout(typeWriter, isDeleting ? 50 : 150);
+      }
+    }
+    
+    // Start the typewriter effect
+    setTimeout(typeWriter, 1000);
+    
+    // Display platform logos
+    displayPlatformLogos();
+    
+    // Button ripple effect
+    document.querySelector('.cta-button').addEventListener('click', function(e) {
+      let x = e.clientX - e.target.getBoundingClientRect().left;
+      let y = e.clientY - e.target.getBoundingClientRect().top;
+      
+      let ripple = document.createElement('span');
+      ripple.style.left = `${x}px`;
+      ripple.style.top = `${y}px`;
+      this.appendChild(ripple);
+      
+      setTimeout(() => {
+        ripple.remove();
+      }, 1000);
+    });
+  </script>
 
-        document.querySelectorAll('.animate-on-scroll').forEach(el => {
-            observer.observe(el);
-        });
+  
 
-        // Subtle parallax for background
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const pattern = document.querySelector('.bg-pattern');
-            pattern.style.transform = `translateY(${scrolled * 0.1}px)`;
-        });
-
-        // Button interactions
-        document.querySelectorAll('.btn').forEach(btn => {
-            btn.addEventListener('mouseenter', () => {
-                btn.style.transform = 'translateY(-2px)';
-            });
-            
-            btn.addEventListener('mouseleave', () => {
-                btn.style.transform = 'translateY(0)';
-            });
-        });
-
-        // Staggered animation for grids
-        const animateGrid = (gridSelector, delay = 100) => {
-            const gridItems = document.querySelectorAll(`${gridSelector} .animate-on-scroll`);
-            gridItems.forEach((item, index) => {
-                item.style.animationDelay = `${index * delay}ms`;
-            });
-        };
-
-        animateGrid('.portfolio-grid');
-        animateGrid('.deliverables-grid');
-        animateGrid('.why-grid');
-        animateGrid('.outcomes-grid');
-    </script>
+  <div class="fixed bottom-4 right-4 text-xs text-gray-500">
+    <a href="https://www.fabai.studio" target="_blank">Created by FabAi.studio</a>
+  </div>
 </body>
 </html>
